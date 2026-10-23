@@ -1,0 +1,24 @@
+/* Final layout corrections shared by live scenes and desk previews. */
+html,body{margin:0!important;width:100%!important;height:100%!important;overflow:hidden!important;scrollbar-width:none}
+html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+#stage{position:fixed!important;left:0;top:0;transform-origin:top left}
+#stage[data-scene="break"] #nextCard{left:132px;top:550px;width:600px;max-height:68px;overflow:hidden}
+#stage[data-scene="break"] #nextCard h3{font-size:11px;line-height:1.5;margin-bottom:6px}
+#stage[data-scene="break"] #nextCard p{font-size:20px;line-height:1.4}
+#stage[data-scene="break"][data-scene] #chat{left:128px;top:650px;bottom:auto;width:600px;max-height:260px;overflow:hidden}
+
+/* One local renderer: the connected remote frame supplies events only. */
+iframe[data-loraii-collector="true"]{visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+#stage #chat .msg{font-family:Arial,sans-serif;font-size:20px;line-height:1.45;padding:10px 14px;border-left:2px solid #c6283266;background:linear-gradient(90deg,#09090bc9,#09090b33);box-shadow:none;max-width:100%;overflow-wrap:anywhere}
+#stage #chat .msg .name{font-size:20px;font-weight:700;color:#e4a0a5;margin-right:9px}
+#stage[data-scene="break"][data-scene] #chat{gap:8px}
+
+/* Starting uses an image element so OBS does not depend on CSS mask support. */
+#stage[data-scene="starting"] #scene{background:#09090b}
+#stage[data-scene="starting"] #startingBackground{position:absolute;inset:0;width:1920px;height:1080px;object-fit:cover;object-position:center;opacity:var(--starting-photo-opacity,.24);pointer-events:none}
+#stage[data-scene="starting"] #scene>.art{display:none!important}
+
+#stage[data-chat-renderer="streamelements"]>#chat,#stage[data-chat-renderer="streamelements"]>#alert{visibility:hidden!important}
+#stage.clock-hidden #gameClock .clock-main{display:none!important}
+#stage.clock-hidden #gameClock:not(:has(#nowPlaying:not([hidden]))){display:none!important}
+#stage #chat .msg .name{font-size:inherit}

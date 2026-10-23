@@ -1,0 +1,889 @@
+{
+  "name": "loraii - OBS Scenes 2.0",
+  "current_scene": "01 - Starting Soon",
+  "current_program_scene": "01 - Starting Soon",
+  "scene_order": [
+    {
+      "name": "01 - Starting Soon"
+    },
+    {
+      "name": "02 - Gameplay"
+    },
+    {
+      "name": "03 - Browsing"
+    },
+    {
+      "name": "04 - Break"
+    },
+    {
+      "name": "05 - Ending"
+    },
+    {
+      "name": "06 - Just Chatting"
+    },
+    {
+      "name": "07 - Instant Replay"
+    },
+    {
+      "name": "08 - Highlights"
+    }
+  ],
+  "sources": [
+    {
+      "name": "01 - Starting Soon",
+      "uuid": "25b4f40a-d463-4fa1-91d7-5c3da2287525",
+      "id": "scene",
+      "versioned_id": "scene",
+      "settings": {
+        "items": [
+          {
+            "name": "OVERLAY - Starting Soon",
+            "source_uuid": "4b9920b3-af11-43a0-a2af-cf8cac25b73d",
+            "visible": true,
+            "locked": true,
+            "rot": 0.0,
+            "pos": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 0,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 1920.0,
+              "y": 1080.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 1
+          }
+        ],
+        "id_counter": 2
+      },
+      "mixers": 0,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "CAPTURE - Game",
+      "uuid": "377d9d03-7710-4cda-9d96-c42dbc64bc96",
+      "id": "game_capture",
+      "versioned_id": "game_capture",
+      "settings": {},
+      "mixers": 0,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "02 - Gameplay",
+      "uuid": "90ee4642-def4-42da-8410-e56f76b775f3",
+      "id": "scene",
+      "versioned_id": "scene",
+      "settings": {
+        "items": [
+          {
+            "name": "CAPTURE - Game",
+            "source_uuid": "377d9d03-7710-4cda-9d96-c42dbc64bc96",
+            "visible": true,
+            "locked": false,
+            "rot": 0.0,
+            "pos": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 0,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 1920.0,
+              "y": 1080.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 2
+          },
+          {
+            "name": "OVERLAY - Gameplay",
+            "source_uuid": "5d2c0645-6f39-4a32-90db-a32d945a40fe",
+            "visible": true,
+            "locked": true,
+            "rot": 0.0,
+            "pos": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 0,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 1920.0,
+              "y": 1080.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 1
+          }
+        ],
+        "id_counter": 3
+      },
+      "mixers": 0,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "CAPTURE - Browser Window",
+      "uuid": "8f311fe7-f066-4971-b457-50a39a1a171f",
+      "id": "window_capture",
+      "versioned_id": "window_capture",
+      "settings": {},
+      "mixers": 0,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "03 - Browsing",
+      "uuid": "92ff2073-f478-401d-8a44-a34d4f071894",
+      "id": "scene",
+      "versioned_id": "scene",
+      "settings": {
+        "items": [
+          {
+            "name": "CAPTURE - Browser Window",
+            "source_uuid": "8f311fe7-f066-4971-b457-50a39a1a171f",
+            "visible": true,
+            "locked": false,
+            "rot": 0.0,
+            "pos": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 0,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 1920.0,
+              "y": 1080.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 2
+          },
+          {
+            "name": "OVERLAY - Browsing",
+            "source_uuid": "874c87a2-82fe-4875-8cad-33d412d40e9b",
+            "visible": true,
+            "locked": true,
+            "rot": 0.0,
+            "pos": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 0,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 1920.0,
+              "y": 1080.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 1
+          }
+        ],
+        "id_counter": 3
+      },
+      "mixers": 0,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "04 - Break",
+      "uuid": "61629b19-0e89-403e-b57d-7d1780fe0262",
+      "id": "scene",
+      "versioned_id": "scene",
+      "settings": {
+        "items": [
+          {
+            "name": "OVERLAY - Break",
+            "source_uuid": "7b34dd3e-91d0-4db3-ac8f-9e964a1f0eff",
+            "visible": true,
+            "locked": true,
+            "rot": 0.0,
+            "pos": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 0,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 1920.0,
+              "y": 1080.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 1
+          }
+        ],
+        "id_counter": 2
+      },
+      "mixers": 0,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "05 - Ending",
+      "uuid": "3a8759d2-1a50-49d0-992b-a0dad7dc2841",
+      "id": "scene",
+      "versioned_id": "scene",
+      "settings": {
+        "items": [
+          {
+            "name": "OVERLAY - Ending",
+            "source_uuid": "069bb600-40a0-46c9-9eab-067f94c28427",
+            "visible": true,
+            "locked": true,
+            "rot": 0.0,
+            "pos": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 0,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 1920.0,
+              "y": 1080.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 1
+          }
+        ],
+        "id_counter": 2
+      },
+      "mixers": 0,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "06 - Just Chatting",
+      "uuid": "734ceed9-ca25-44ca-9c33-4ad377646e21",
+      "id": "scene",
+      "versioned_id": "scene",
+      "settings": {
+        "items": [
+          {
+            "name": "OVERLAY - Just Chatting",
+            "source_uuid": "e9bb525b-2a3c-4fd7-ae19-3027c43bf94f",
+            "visible": true,
+            "locked": true,
+            "rot": 0.0,
+            "pos": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 0,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 1920.0,
+              "y": 1080.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 1
+          }
+        ],
+        "id_counter": 2
+      },
+      "mixers": 0,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "BACKGROUND - Instant Replay",
+      "uuid": "02c6c55c-3177-4dbb-b608-905de0ba5c04",
+      "id": "color_source_v3",
+      "versioned_id": "color_source_v3",
+      "settings": {
+        "color": 4278913289,
+        "width": 1920,
+        "height": 1080
+      },
+      "mixers": 255,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "MEDIA - Instant Replay",
+      "uuid": "e3a1f29a-5381-4cec-b5a3-8f2db59ba354",
+      "id": "ffmpeg_source",
+      "versioned_id": "ffmpeg_source",
+      "settings": {
+        "is_local_file": true,
+        "local_file": "",
+        "looping": false,
+        "restart_on_activate": true,
+        "clear_on_media_end": true,
+        "close_when_inactive": true,
+        "hw_decode": true
+      },
+      "mixers": 255,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "07 - Instant Replay",
+      "uuid": "12dfd043-9703-4fc4-9ab1-f55569ed80e5",
+      "id": "scene",
+      "versioned_id": "scene",
+      "settings": {
+        "items": [
+          {
+            "name": "BACKGROUND - Instant Replay",
+            "source_uuid": "02c6c55c-3177-4dbb-b608-905de0ba5c04",
+            "visible": true,
+            "locked": true,
+            "rot": 0.0,
+            "pos": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 0,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 1920.0,
+              "y": 1080.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 1
+          },
+          {
+            "name": "MEDIA - Instant Replay",
+            "source_uuid": "e3a1f29a-5381-4cec-b5a3-8f2db59ba354",
+            "visible": true,
+            "locked": true,
+            "rot": 0.0,
+            "pos": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 2,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 1920.0,
+              "y": 1080.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 2
+          },
+          {
+            "name": "OVERLAY - Instant Replay",
+            "source_uuid": "ca0a2154-65ec-4976-a40f-7f4c5146072a",
+            "visible": true,
+            "locked": true,
+            "rot": 0.0,
+            "pos": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 0,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 1920.0,
+              "y": 1080.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 3
+          }
+        ],
+        "id_counter": 4
+      },
+      "mixers": 0,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "BACKGROUND - Highlights",
+      "uuid": "7560abff-d554-4567-95e1-842d296f6f44",
+      "id": "color_source_v3",
+      "versioned_id": "color_source_v3",
+      "settings": {
+        "color": 4278913289,
+        "width": 1920,
+        "height": 1080
+      },
+      "mixers": 255,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "MEDIA - Highlights",
+      "uuid": "e4e3390b-ced4-4905-a07f-e60bd5307c08",
+      "id": "ffmpeg_source",
+      "versioned_id": "ffmpeg_source",
+      "settings": {
+        "is_local_file": true,
+        "local_file": "",
+        "looping": false,
+        "restart_on_activate": true,
+        "clear_on_media_end": true,
+        "close_when_inactive": true,
+        "hw_decode": true
+      },
+      "mixers": 255,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "08 - Highlights",
+      "uuid": "4df49f4e-7c43-45cf-a45e-c73735fe04a5",
+      "id": "scene",
+      "versioned_id": "scene",
+      "settings": {
+        "items": [
+          {
+            "name": "BACKGROUND - Highlights",
+            "source_uuid": "7560abff-d554-4567-95e1-842d296f6f44",
+            "visible": true,
+            "locked": true,
+            "rot": 0.0,
+            "pos": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 0,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 1920.0,
+              "y": 1080.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 1
+          },
+          {
+            "name": "MEDIA - Highlights",
+            "source_uuid": "e4e3390b-ced4-4905-a07f-e60bd5307c08",
+            "visible": true,
+            "locked": true,
+            "rot": 0.0,
+            "pos": {
+              "x": 520.0,
+              "y": 152.0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 2,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 1336.0,
+              "y": 751.5
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 2
+          },
+          {
+            "name": "OVERLAY - Highlights",
+            "source_uuid": "dd70f70a-5cde-44eb-bec1-39ef578740b8",
+            "visible": true,
+            "locked": true,
+            "rot": 0.0,
+            "pos": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 0,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 1920.0,
+              "y": 1080.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 3
+          }
+        ],
+        "id_counter": 4
+      },
+      "mixers": 0,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "OVERLAY - Starting Soon",
+      "uuid": "4b9920b3-af11-43a0-a2af-cf8cac25b73d",
+      "id": "browser_source",
+      "versioned_id": "browser_source",
+      "settings": {
+        "is_local_file": false,
+        "width": 1920,
+        "height": 1080,
+        "fps": 60,
+        "fps_custom": true,
+        "shutdown": false,
+        "restart_when_active": false,
+        "url": "http://127.0.0.1:4462/starting.html",
+        "reroute_audio": true
+      },
+      "mixers": 0,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "OVERLAY - Gameplay",
+      "uuid": "5d2c0645-6f39-4a32-90db-a32d945a40fe",
+      "id": "browser_source",
+      "versioned_id": "browser_source",
+      "settings": {
+        "is_local_file": false,
+        "width": 1920,
+        "height": 1080,
+        "fps": 60,
+        "fps_custom": true,
+        "shutdown": false,
+        "restart_when_active": false,
+        "url": "http://127.0.0.1:4462/gameplay.html",
+        "reroute_audio": true
+      },
+      "mixers": 0,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "OVERLAY - Browsing",
+      "uuid": "874c87a2-82fe-4875-8cad-33d412d40e9b",
+      "id": "browser_source",
+      "versioned_id": "browser_source",
+      "settings": {
+        "is_local_file": false,
+        "width": 1920,
+        "height": 1080,
+        "fps": 60,
+        "fps_custom": true,
+        "shutdown": false,
+        "restart_when_active": false,
+        "url": "http://127.0.0.1:4462/browser.html",
+        "reroute_audio": true
+      },
+      "mixers": 0,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "OVERLAY - Break",
+      "uuid": "7b34dd3e-91d0-4db3-ac8f-9e964a1f0eff",
+      "id": "browser_source",
+      "versioned_id": "browser_source",
+      "settings": {
+        "is_local_file": false,
+        "width": 1920,
+        "height": 1080,
+        "fps": 60,
+        "fps_custom": true,
+        "shutdown": false,
+        "restart_when_active": false,
+        "url": "http://127.0.0.1:4462/break.html",
+        "reroute_audio": true
+      },
+      "mixers": 0,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "OVERLAY - Ending",
+      "uuid": "069bb600-40a0-46c9-9eab-067f94c28427",
+      "id": "browser_source",
+      "versioned_id": "browser_source",
+      "settings": {
+        "is_local_file": false,
+        "width": 1920,
+        "height": 1080,
+        "fps": 60,
+        "fps_custom": true,
+        "shutdown": false,
+        "restart_when_active": false,
+        "url": "http://127.0.0.1:4462/ending.html",
+        "reroute_audio": true
+      },
+      "mixers": 0,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "OVERLAY - Just Chatting",
+      "uuid": "e9bb525b-2a3c-4fd7-ae19-3027c43bf94f",
+      "id": "browser_source",
+      "versioned_id": "browser_source",
+      "settings": {
+        "is_local_file": false,
+        "width": 1920,
+        "height": 1080,
+        "fps": 60,
+        "fps_custom": true,
+        "shutdown": false,
+        "restart_when_active": false,
+        "url": "http://127.0.0.1:4462/justchat.html",
+        "reroute_audio": true
+      },
+      "mixers": 0,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "OVERLAY - Instant Replay",
+      "uuid": "ca0a2154-65ec-4976-a40f-7f4c5146072a",
+      "id": "browser_source",
+      "versioned_id": "browser_source",
+      "settings": {
+        "is_local_file": false,
+        "width": 1920,
+        "height": 1080,
+        "fps": 60,
+        "fps_custom": true,
+        "shutdown": false,
+        "restart_when_active": false,
+        "url": "http://127.0.0.1:4462/replay.html",
+        "reroute_audio": true
+      },
+      "mixers": 0,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "name": "OVERLAY - Highlights",
+      "uuid": "dd70f70a-5cde-44eb-bec1-39ef578740b8",
+      "id": "browser_source",
+      "versioned_id": "browser_source",
+      "settings": {
+        "is_local_file": false,
+        "width": 1920,
+        "height": 1080,
+        "fps": 60,
+        "fps_custom": true,
+        "shutdown": false,
+        "restart_when_active": false,
+        "url": "http://127.0.0.1:4462/highlights.html",
+        "reroute_audio": true
+      },
+      "mixers": 0,
+      "sync": 0,
+      "flags": 0,
+      "volume": 1.0,
+      "enabled": true,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    }
+  ],
+  "groups": [],
+  "quick_transitions": [],
+  "transitions": [
+    {
+      "name": "Fade",
+      "id": "fade_transition",
+      "settings": {}
+    }
+  ],
+  "current_transition": "Fade",
+  "transition_duration": 300,
+  "modules": {}
+}

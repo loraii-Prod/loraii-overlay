@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+state.json
+settings.json
+connections.json
+secrets.json
+private/
+data/

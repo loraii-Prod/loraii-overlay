@@ -1,0 +1,4 @@
+(()=>{'use strict';const stage=document.querySelector('#stage');if(!stage)return;let lastTitle='',lastVisible=true;const reduced=()=>window.LORAII_CONFIG?.motion===false||matchMedia('(prefers-reduced-motion: reduce)').matches;
+function refresh(){const music=document.querySelector('#nowPlaying p');if(music&&music.textContent!==lastTitle){lastTitle=music.textContent;if(lastTitle&&!reduced()){music.classList.remove('music-change');void music.offsetWidth;music.classList.add('music-change');}}}
+setInterval(refresh,500);
+addEventListener('obsSourceVisibleChanged',e=>{const visible=!!e.detail.visible;if(visible&&!lastVisible&&!reduced())for(const node of document.querySelectorAll('#status,#countdown,.plan-card')){if(!node.getClientRects().length)continue;node.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],{duration:400,easing:'ease-out'});}lastVisible=visible;});})();

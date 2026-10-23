@@ -1,0 +1,16 @@
+/* Widget motion only. OBS owns scene switching and transitions. */
+@keyframes loraiiReveal{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes loraiiChatIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes loraiiPhotoBreath{from{transform:scale(1)}to{transform:scale(1.025)}}
+@keyframes loraiiMusicChange{from{opacity:.3;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+#stage .msg{animation:loraiiChatIn .24s cubic-bezier(.2,.7,.3,1) both}
+#stage .status,#stage #countdown,#stage .plan-card{animation:loraiiReveal .55s cubic-bezier(.2,.7,.3,1) both}
+#stage .caption{animation:loraiiReveal .65s .1s both}
+#stage #startingBackground{animation:loraiiPhotoBreath 28s ease-in-out infinite alternate;transform-origin:65% 50%}
+#stage #nowPlaying:not([hidden]){animation:loraiiReveal .35s both}
+#stage #nowPlaying p.music-change{animation:loraiiMusicChange .3s both}
+#stage[data-scene="live"] #gameClock .clock-main{animation:loraiiReveal .45s both}
+#stage.motion-off *,#stage.motion-off *::before,#stage.motion-off *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+#stage.motion-off #alert.on{opacity:1;transform:none}
+#stage.motion-off #alert.off{opacity:0}
+@media(prefers-reduced-motion:reduce){#stage *,#stage *::before,#stage *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}#stage #alert.on{opacity:1;transform:none}#stage #alert.off{opacity:0}}

@@ -1,0 +1,22 @@
+# Paid alternative: choose explicitly for persistent production hosting.
+services:
+  - type: web
+    name: loraii-overlays
+    runtime: docker
+    plan: 0.5c-512mb
+    healthCheckPath: /healthz
+    disk:
+      name: loraii-settings
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: VIEW_KEY
+        generateValue: true
+      - key: LORAII_RELAY_KEY
+        generateValue: true
+      - key: LORAII_DATA_DIR
+        value: /var/data
+      - key: PERSISTENT_STORAGE
+        value: "1"

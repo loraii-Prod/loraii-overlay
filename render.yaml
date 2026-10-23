@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: loraii-overlays-preview
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: VIEW_KEY
+        generateValue: true
+      - key: LORAII_RELAY_KEY
+        generateValue: true
+      - key: LORAII_DATA_DIR
+        value: /tmp/loraii-online
+      - key: PERSISTENT_STORAGE
+        value: "0"
