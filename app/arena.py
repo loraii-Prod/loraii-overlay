@@ -2,7 +2,7 @@
 import math,random,re,secrets,threading,time
 import core
 RNG=random.Random();VISIBLE={};LAST=time.monotonic();ACC=0
-GAME={'enabled':False,'phase':'off','round':0,'elapsed':0,'lobby':0,'radius':1.0,'players':[],'winner':'','message':'Type !play to join','paused':True}
+GAME={'enabled':False,'phase':'off','round':0,'elapsed':0,'lobby':0,'radius':1.0,'players':[],'winner':'','message':'Type !join to join','paused':True}
 MAX_PLAYERS=40
 
 def snapshot():
@@ -21,10 +21,10 @@ def command(action):
  with core.LOCK:
   if action=='hide':GAME['enabled']=False;GAME['phase']='off';GAME['players']=[];GAME['winner']=''
   elif action in ['lobby','reset']:
-   GAME.update(enabled=True,phase='lobby',elapsed=0,lobby=0,radius=1.0,players=[],winner='',message='Type !play to join')
+   GAME.update(enabled=True,phase='lobby',elapsed=0,lobby=0,radius=1.0,players=[],winner='',message='Type !join to join')
   elif action=='start':
    if not GAME['enabled'] or GAME['phase']!='lobby':raise ValueError('Open the lobby first.')
-   if len(GAME['players'])<2:raise ValueError('At least two viewers must type !play.')
+   if len(GAME['players'])<2:raise ValueError('At least two viewers must type !join.')
    GAME.update(phase='battle',elapsed=0,radius=1.0,winner='',round=GAME['round']+1,message='Bonk battle!')
   else:raise ValueError('Unknown arena control.')
   emit()
@@ -32,7 +32,7 @@ def command(action):
 def join(packet):
  if packet.get('listener')!='message':return False
  event=packet.get('event') or {};d=event.get('data',event)
- if not isinstance(d,dict) or str(d.get('text','')).strip().lower()!='!play':return False
+ if not isinstance(d,dict) or str(d.get('text','')).strip().lower()!='!join':return False
  with core.LOCK:
   if not GAME['enabled'] or GAME['phase']!='lobby' or GAME['paused']:return False
   name=str(d.get('displayName') or d.get('nick') or '').strip()[:24]
