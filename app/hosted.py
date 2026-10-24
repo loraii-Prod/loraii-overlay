@@ -11,6 +11,7 @@ if len(ADMIN_KEY)<24 or len(VIEW_KEY)<24 or hmac.compare_digest(ADMIN_KEY,VIEW_K
 RELAY_KEY=os.environ.get('LORAII_RELAY_KEY') or hmac.new(ADMIN_KEY.encode(),b'loraii-relay-v1',hashlib.sha256).hexdigest()
 os.environ['LORAII_RELAY_KEY']=RELAY_KEY
 import core
+import spotify
 ROOT=Path(__file__).resolve().parent
 CONNECTION_FILE=core.STATE_DIR/'connections.json'
 SCENE_ROUTES=['starting','gameplay','browser','break','ending','justchat','replay','highlights']
@@ -82,6 +83,18 @@ class Handler(core.Handler):
   if not role:
    if path in ['/','/control.html']:return self.redirect('/login')
    return self.reply({'error':'Sign in or use a private OBS link'},401)
+  if path in ['/api/spotify','/spotify/connect','/spotify/callback']:
+   if role!='admin':return self.reply({'error':'Controller login required'},403)
+   try:
+    if path=='/api/spotify':return self.reply({**spotify.status(),'redirect_uri':self.public_origin()+'/spotify/callback'})
+    if path=='/spotify/connect':
+     state,url=spotify.begin(self.public_origin()+'/spotify/callback')
+     return self.redirect(url,self.cookie('loraii_spotify_state',state).replace('Max-Age=2592000','Max-Age=600'))
+    args=parse_qs(parsed.query);cookies=SimpleCookie();cookies.load(self.headers.get('Cookie',''))
+    entry=cookies.get('loraii_spotify_state')
+    spotify.callback(args.get('state',[''])[0],args.get('code',[''])[0],entry.value if entry else '')
+    return self.redirect('/control.html?spotify=connected','loraii_spotify_state=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax')
+   except spotify.SpotifyError as e:return self.reply({'error':str(e)},400)
   if path=='/auth/logout':
    if role!='admin':return self.reply({'error':'Controller login required'},403)
    return self.send('<!doctype html><form method="post" action="/auth/logout"><button>Sign out</button></form>')
@@ -142,6 +155,15 @@ class Handler(core.Handler):
    if self.headers.get('X-Loraii-Control')!='1':return self.reply({'error':'Missing control header'},403)
    event=json.loads(raw)
    if not isinstance(event,dict):raise ValueError('Expected object')
+   if path=='/api/spotify':
+    if role!='admin':return self.reply({'error':'Controller login required'},403)
+    try:
+     action=event.get('action')
+     if action=='configure':spotify.configure(event.get('client_id'))
+     elif action=='disconnect':spotify.disconnect()
+     else:spotify.control(action)
+     return self.reply({'ok':True})
+    except spotify.SpotifyError as e:return self.reply({'error':str(e)},400)
    if path=='/api/connections':
     if role!='admin':return self.reply({'error':'Controller login required'},403)
     updated=valid_links(event)

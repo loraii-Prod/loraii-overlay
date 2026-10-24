@@ -77,3 +77,13 @@ session. No hosted URL or live Twitch delivery is claimed yet.
 Timer and music are the only expanded control panels. Start becomes Resume after
 a pause. Stream plan, scene preview, chat diagnostics and settings stay collapsed.
 All eight scene previews and private source links remain available when needed.
+
+## Spotify music widget
+The Music panel now offers Spotify Now Playing plus previous/play/pause/next controls. Audio continues to play in the Spotify app and enters OBS through your normal audio routing; the website displays metadata only.
+
+1. Open Music → Spotify setup.
+2. Create a Web API app at https://developer.spotify.com/dashboard (app owner needs Spotify Premium). Add this exact redirect URI: `https://loraii-overlays-preview.onrender.com/spotify/callback` (use your own host if different).
+3. Paste the app Client ID into the controller, Save Client ID, then Connect Spotify and approve access. Do not provide a client secret.
+4. Open Spotify on the PC and play a track. The existing scene banners update automatically and hide on pause. Connecting disables the manual title override; manual mode remains available.
+
+Access/refresh tokens stay on the server, excluded from Git and viewer APIs. Free preview storage may forget authorization after restart; reconnect, or use persistent storage. Playback uses one shared poll every five seconds while the controller/overlays are active, with rate-limit backoff. Spotify sign-in and real playback must be verified with your own account after deployment.

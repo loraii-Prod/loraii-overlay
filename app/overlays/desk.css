@@ -23,3 +23,5 @@
 .controller .deskFootnote{margin-top:0}
 button[hidden]{display:none!important}
 @media(max-width:650px){.primaryControls{grid-template-columns:1fr}.controller main{padding-top:16px}.controller .statusline{gap:10px}}
+
+#spotifyDesk .row{flex-wrap:wrap;gap:6px}#spotifyDesk button{padding:10px 12px}#spotifyDesk .spotifyConnect{display:inline-block;padding:11px 14px;background:#c62832;color:#fff;text-decoration:none;font-size:13px}#spotifyDesk code{overflow-wrap:anywhere;user-select:all}#spotifyDesk details{margin-top:16px}#spotifyDesk summary{cursor:pointer;font-size:13px}#spotifyDesk input{width:100%;box-sizing:border-box}
