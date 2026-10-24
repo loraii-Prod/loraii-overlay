@@ -87,3 +87,14 @@ The Music panel now offers Spotify Now Playing plus previous/play/pause/next con
 4. Open Spotify on the PC and play a track. The existing scene banners update automatically and hide on pause. Connecting disables the manual title override; manual mode remains available.
 
 Access/refresh tokens stay on the server, excluded from Git and viewer APIs. Free preview storage may forget authorization after restart; reconnect, or use persistent storage. Playback uses one shared poll every five seconds while the controller/overlays are active, with rate-limit backoff. Spotify sign-in and real playback must be verified with your own account after deployment.
+
+## Cute chat battle — The Little Bonk Club
+Open the controller → Cute chat battle → Open lobby. On Starting Soon, Break or Ending, viewers type exactly `!play` through the existing StreamElements relay. One entry per Twitch identity, maximum 40 players. Two players are required. A lobby starts automatically after 45 active seconds, or you can press Start round. Cute cats, frogs, ghosts and blobs automatically chase, bonk and survive a shrinking ring. The winner wears a crown for 15 seconds, then a new lobby opens. Turn off hides and clears the game; Reset opens a fresh lobby. Starts off after a server restart.
+
+Only the three waiting scenes load the game. The server owns simulation and joins, so refreshing or opening another waiting scene does not duplicate the match. Arena state uses memory, not persistent storage. Graphics are compact 2.5D canvas characters above a WebGPU-rendered arena floor; a Canvas floor is used automatically when WebGPU is unavailable or the GPU device is lost. There is no dependency download and no game audio.
+
+In OBS, enable **Shutdown source when not visible** for all three waiting-screen Browser Sources. Active scene heartbeats pause simulation after eight seconds without a waiting screen. Without that setting, a hidden source may remain loaded and keep the game active. OBS source-activity events and document visibility are also observed.
+
+After updating, refresh the three waiting sources and your controller. The Scene preview shows six fictional sample creatures without sending joins or presence to the real game. Test a real `!play` message to verify your StreamElements relay.
+
+Verification: authenticated HTTP relay joins, exact command matching, deduplication, capacity, full match simulation, winner/lobby cycle, pause, permissions, scene asset scope and existing Spotify status checked locally. Canvas sample renderer visually inspected. WebGPU GPU execution and actual Windows OBS rendering still need checking on your PC.

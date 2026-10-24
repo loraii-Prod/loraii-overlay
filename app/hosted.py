@@ -12,6 +12,7 @@ RELAY_KEY=os.environ.get('LORAII_RELAY_KEY') or hmac.new(ADMIN_KEY.encode(),b'lo
 os.environ['LORAII_RELAY_KEY']=RELAY_KEY
 import core
 import spotify
+import arena
 ROOT=Path(__file__).resolve().parent
 CONNECTION_FILE=core.STATE_DIR/'connections.json'
 SCENE_ROUTES=['starting','gameplay','browser','break','ending','justchat','replay','highlights']
@@ -40,7 +41,7 @@ def valid_login_token(token):
   return 0<=time.time()-int(timestamp)<=900 and hmac.compare_digest(signature,hmac.new(COOKIE_SECRET,payload.encode(),hashlib.sha256).hexdigest())
  except (ValueError,TypeError,AttributeError):return False
 def session(role):return hmac.new(COOKIE_SECRET,(role+(':'+VIEW_KEY if role=='viewer' else '')).encode(),hashlib.sha256).hexdigest()
-VIEW_STATIC={'replay.html','se-connection.js','control-client.js','scene-copy.js','stream-scenes.js','session-stats.js','motion.js','motion.css','layout-fixes.css','emotes.js'}|{s+'.html' for s in SCENE_ROUTES}
+VIEW_STATIC={'arena.js','arena.css','replay.html','se-connection.js','control-client.js','scene-copy.js','stream-scenes.js','session-stats.js','motion.js','motion.css','layout-fixes.css','emotes.js'}|{s+'.html' for s in SCENE_ROUTES}
 class Handler(core.Handler):
  def public_origin(self):
   configured=os.environ.get('PUBLIC_URL') or os.environ.get('RENDER_EXTERNAL_URL')
@@ -98,6 +99,7 @@ class Handler(core.Handler):
   if path=='/auth/logout':
    if role!='admin':return self.reply({'error':'Controller login required'},403)
    return self.send('<!doctype html><form method="post" action="/auth/logout"><button>Sign out</button></form>')
+  if path=='/api/arena':return self.reply(arena.snapshot())
   if path=='/api/hosting':
    if role!='admin':return self.reply({'error':'Controller login required'},403)
    origin=self.public_origin();return self.reply({'scene_urls':{n:origin+'/'+n+'.html?'+urlencode({'view':VIEW_KEY}) for n in SCENE_ROUTES},'se_urls':connections,'persistent':os.environ.get('PERSISTENT_STORAGE')=='1'})
@@ -155,6 +157,10 @@ class Handler(core.Handler):
    if self.headers.get('X-Loraii-Control')!='1':return self.reply({'error':'Missing control header'},403)
    event=json.loads(raw)
    if not isinstance(event,dict):raise ValueError('Expected object')
+   if path=='/api/arena':
+    if event.get('action')=='presence':arena.presence(event.get('client'),event.get('scene'));return self.reply({'ok':True})
+    if role!='admin':return self.reply({'error':'Controller login required'},403)
+    arena.command(event.get('action'));return self.reply({'ok':True})
    if path=='/api/spotify':
     if role!='admin':return self.reply({'error':'Controller login required'},403)
     try:

@@ -239,6 +239,8 @@ class Handler(SimpleHTTPRequestHandler):
       credit={'follower-latest':'followers','subscriber-latest':'gifts' if e.get('gifted') or e.get('bulkGifted') else 'subs','raid-latest':'raids','cheer-latest':'supporters','tip-latest':'supporters'}.get(kind)
      if credit and name and len(STATE['credits'][credit])<300 and name.lower() not in ['streamelements','nightbot','streamlabs','moobot']:
       if not any(x.lower()==name.lower() for x in STATE['credits'][credit]):STATE['credits'][credit].append(name);save()
+     import arena
+     arena.join(packet)
      broadcast({'type':'live','packet':packet});broadcast({'type':'state','state':snapshot()})
     elif action=='stream':
      v=event.get('data',{});duration=float(v.get('duration',0))
