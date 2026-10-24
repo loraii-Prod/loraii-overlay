@@ -30,6 +30,14 @@ try:connections=valid_links(json.loads(CONNECTION_FILE.read_text()))
 except (OSError,ValueError,TypeError):connections=valid_links(json.loads(os.environ.get('SE_URLS_JSON','{}')))
 LOGIN_ATTEMPTS={}
 COOKIE_SECRET=hmac.new(ADMIN_KEY.encode(),b'loraii-cookie-v1',hashlib.sha256).digest()
+def login_token():
+ payload=str(int(time.time()))+':'+secrets.token_hex(16)
+ return payload+':'+hmac.new(COOKIE_SECRET,payload.encode(),hashlib.sha256).hexdigest()
+def valid_login_token(token):
+ try:
+  timestamp,nonce,signature=token.split(':');payload=timestamp+':'+nonce
+  return 0<=time.time()-int(timestamp)<=900 and hmac.compare_digest(signature,hmac.new(COOKIE_SECRET,payload.encode(),hashlib.sha256).hexdigest())
+ except (ValueError,TypeError,AttributeError):return False
 def session(role):return hmac.new(COOKIE_SECRET,(role+(':'+VIEW_KEY if role=='viewer' else '')).encode(),hashlib.sha256).hexdigest()
 VIEW_STATIC={'replay.html','se-connection.js','control-client.js','scene-copy.js','stream-scenes.js','session-stats.js','motion.js','motion.css','layout-fixes.css','emotes.js'}|{s+'.html' for s in SCENE_ROUTES}
 class Handler(core.Handler):
@@ -64,7 +72,7 @@ class Handler(core.Handler):
  def do_GET(self):
   parsed=urlsplit(self.path);path=parsed.path
   if path=='/healthz':return self.reply({'ok':True,'app':'loraii-online'})
-  if path=='/login':return self.send('''<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>loraii / Sign in</title><style>body{margin:0;background:#09090b;color:#efede8;font:16px Arial;display:grid;min-height:100vh;place-items:center}form{width:min(360px,80vw);border-top:3px solid #c62832;padding-top:24px}input,button{box-sizing:border-box;width:100%;padding:14px;background:#161619;border:1px solid #444;color:white;margin:10px 0;font:inherit}button{background:#c62832;cursor:pointer}small{color:#aaa}</style></head><body><form action="/auth/login" method="post"><h1>LORAII_</h1><p>Your stream desk, online.</p><label>Controller access key<input type="password" name="key" required autocomplete="current-password"></label><button>Open controller</button><small>Use the ADMIN_KEY from your hosting service.</small></form></body></html>''')
+  if path=='/login':return self.send('''<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>loraii / Sign in</title><style>body{margin:0;background:#09090b;color:#efede8;font:16px Arial;display:grid;min-height:100vh;place-items:center}form{width:min(360px,80vw);border-top:3px solid #c62832;padding-top:24px}input,button{box-sizing:border-box;width:100%;padding:14px;background:#161619;border:1px solid #444;color:white;margin:10px 0;font:inherit}button{background:#c62832;cursor:pointer}small{color:#aaa}</style></head><body><form action="/auth/login" method="post"><input type="hidden" name="login_token" value="__LOGIN_TOKEN__"><h1>LORAII_</h1><p>Your stream desk, online.</p><label>Controller access key<input type="password" name="key" required autocomplete="current-password"></label><button>Open controller</button><small>Use the ADMIN_KEY from your hosting service.</small></form></body></html>'''.replace('__LOGIN_TOKEN__',login_token()))
   role=self.role();view=parse_qs(parsed.query).get('view',[''])[0]
   if view:
    if not hmac.compare_digest(view,VIEW_KEY):return self.reply({'error':'Invalid OBS link'},401)
@@ -106,19 +114,21 @@ class Handler(core.Handler):
   return self.base_get()
  def do_POST(self):
   path=urlsplit(self.path).path;origin=self.headers.get('Origin')
-  if origin and origin!=self.public_origin():return self.reply({'error':'Origin rejected'},403)
+  if path!='/auth/login' and origin and origin!=self.public_origin():return self.reply({'error':'Origin rejected','received_origin':origin,'expected_origin':self.public_origin(),'help':'Open the controller directly at the expected origin in a browser tab.'},403)
   try:
    size=int(self.headers.get('Content-Length','0'))
    if not 0<=size<=1000000 or (size==0 and path!='/auth/logout'):raise ValueError('Invalid request size')
    raw=self.rfile.read(size)
    if path=='/auth/login':
+    form=parse_qs(raw.decode())
+    if not valid_login_token(form.get('login_token',[''])[0]):return self.send('Login page expired. <a href="/login">Open a fresh sign-in page</a> and try again.',status=403)
     address=self.client_address[0]
     now=time.time()
     with core.LOCK:
      recent=[t for t in LOGIN_ATTEMPTS.get(address,[]) if now-t<600]
      if len(recent)>=20:return self.reply({'error':'Too many failed sign-ins. Try again later.'},429)
      LOGIN_ATTEMPTS[address]=recent
-    provided=parse_qs(raw.decode()).get('key',[''])[0]
+    provided=form.get('key',[''])[0]
     if not hmac.compare_digest(provided,ADMIN_KEY):
      with core.LOCK:LOGIN_ATTEMPTS[address].append(now)
      return self.send('Invalid access key. <a href="/login">Try again</a>',status=401)
