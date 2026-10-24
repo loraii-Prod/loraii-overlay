@@ -160,7 +160,7 @@ class Handler(core.Handler):
    if path=='/api/arena':
     if event.get('action')=='presence':arena.presence(event.get('client'),event.get('scene'));return self.reply({'ok':True})
     if role!='admin':return self.reply({'error':'Controller login required'},403)
-    arena.command(event.get('action'));return self.reply({'ok':True})
+    arena.command(event.get('action'));return self.reply({'ok':True,'arena':arena.snapshot()})
    if path=='/api/spotify':
     if role!='admin':return self.reply({'error':'Controller login required'},403)
     try:
