@@ -12,6 +12,7 @@ This branch only holds the bracket. It shares no files with the loraii overlays 
 |---|---|
 | Overlay, shows the part that is on air | `https://<site>.onrender.com/` |
 | Overlay pinned to Part 1 or Part 2 | `…/#part1`, `…/#part2` |
+| One source that switches parts every 20 s and pulls scores from the sheet | `…/#rotate=20&sheet` |
 | Controller | `…/#control` |
 
 ## Deploy on Render
@@ -24,8 +25,15 @@ This branch only holds the bracket. It shares no files with the loraii overlays 
 
 1. Add a **Browser Source**, 1920×1080, with the site address. Untick "Local file".
 2. Add a **Custom Browser Dock** (Docks → Custom Browser Docks) with the address ending in `#control`.
-3. Overlay and dock share storage inside OBS, so score changes reach the stream within a second.
-   A controller opened in a normal browser does **not** reach OBS. Use the dock.
+3. The controller and the overlay share scores through browser storage. OBS can keep docks and browser
+   sources apart, and a controller in a normal browser never reaches OBS. If changes don't show on stream,
+   use `#sheet` (scores from the Google Sheet) plus `rotate=` or Interact for switching parts.
+
+## Switching parts in a single OBS source
+
+- Add `rotate=N` to the address to alternate Part 1 and Part 2 every N seconds.
+- Or right-click the source → **Interact** and press **1** or **2** (or double-click) to switch by hand.
+- Both play the slide-in animation and need no controller.
 
 ## Controller
 
