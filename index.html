@@ -124,7 +124,7 @@ body.overlay.has-room .offzone{display:flex}
 
 
 /* ================= Gameplay match updates ================= */
-body.gameplay{overflow:hidden}
+body.gameplay,body.waiting{overflow:hidden}
 .gp-wrap{position:relative;width:100vw;height:100vh}
 .gp-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden}
 .gp{position:absolute;left:60px;bottom:110px;display:flex;align-items:stretch;filter:drop-shadow(0 8px 18px rgba(0,0,0,.45))}
@@ -136,15 +136,15 @@ body.gameplay{overflow:hidden}
 .gp.gp-match .tag b{font-size:44px;line-height:1}
 .gp .body{display:flex;flex-direction:column;min-width:620px}
 .gp .rows{display:flex;flex-direction:column;gap:3px;padding-left:26px;background:transparent}
-.gp .r{height:46px;display:flex;align-items:center;background:var(--box);color:var(--text)}
-.gp .r .logo{width:34px;height:34px;margin-left:10px;display:flex;align-items:center;justify-content:center;background:#141414;border-radius:3px}
-.gp .r .logo img{width:28px;height:28px;object-fit:contain}
-.gp .r .name{flex:1;padding:0 14px;font-weight:800;font-style:italic;font-size:22px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gp .r .score{width:58px;align-self:stretch;display:flex;align-items:center;justify-content:center;background:#1B1210;color:#fff;font-weight:900;font-style:italic;font-size:26px}
-.gp .r.up .score{background:linear-gradient(135deg,var(--orange),var(--red))}
-.gp .r.up{box-shadow:inset 5px 0 0 var(--orange)}
-.gp .r.down{background:var(--box-dim)}
-.gp .r.down .name{color:#5E5652}
+.gp .r,.ws .r{height:46px;display:flex;align-items:center;background:var(--box);color:var(--text)}
+.gp .r .logo,.ws .r .logo{width:34px;height:34px;margin-left:10px;display:flex;align-items:center;justify-content:center;background:#141414;border-radius:3px}
+.gp .r .logo img,.ws .r .logo img{width:28px;height:28px;object-fit:contain}
+.gp .r .name,.ws .r .name{flex:1;padding:0 14px;font-weight:800;font-style:italic;font-size:22px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gp .r .score,.ws .r .score{width:58px;align-self:stretch;display:flex;align-items:center;justify-content:center;background:#1B1210;color:#fff;font-weight:900;font-style:italic;font-size:26px}
+.gp .r.up .score,.ws .r.up .score{background:linear-gradient(135deg,var(--orange),var(--red))}
+.gp .r.up,.ws .r.up{box-shadow:inset 5px 0 0 var(--orange)}
+.gp .r.down,.ws .r.down{background:var(--box-dim)}
+.gp .r.down .name,.ws .r.down .name{color:#5E5652}
 .gp .line{margin:3px 0 0 26px;padding:9px 16px;background:rgba(22,10,7,.92);color:#fff;font-weight:800;font-style:italic;font-size:19px;text-transform:uppercase;letter-spacing:.2px}
 .gp .line em{font-style:italic;color:var(--ember)}
 .gp .ctx{margin:0 0 4px 26px;font-weight:800;font-style:italic;font-size:15px;text-transform:uppercase;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.7)}
@@ -154,11 +154,32 @@ body.gameplay{overflow:hidden}
 @keyframes gpout{to{opacity:0;translate:-80px 0}}
 @media (prefers-reduced-motion: reduce){.gp.in,.gp.out{animation:none}}
 .gp-off{position:absolute;left:0;right:0;display:none;align-items:center;gap:12px;padding:0 20px;background:#120806;border-top:2px solid var(--orange);font-family:'Montserrat',sans-serif}
-body.gameplay.has-room .gp-off{display:flex}
+body.gameplay.has-room .gp-off,body.waiting.has-room .gp-off{display:flex}
 .gp-off button{all:unset;cursor:pointer;padding:10px 18px;background:#2A1812;border:1px solid #4A2B20;color:#fff;font-weight:800;font-style:italic;font-size:16px;text-transform:uppercase}
 .gp-off button:hover{background:#3A2219}
 .gp-off button:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
 .gp-off span{margin-left:auto;color:#B9AEA8;font-size:14px}
+
+
+/* ================= Waiting screen: up next + latest results ================= */
+.ws{position:absolute;top:540px;width:640px}
+.ws.next{left:290px}.ws.res{left:990px}
+.ws h2{margin:0 0 18px;display:flex;align-items:baseline;gap:14px;font-weight:900;font-style:italic;font-size:30px;text-transform:uppercase;color:#fff}
+.ws h2::after{content:"";flex:1;height:3px;background:linear-gradient(90deg,var(--orange),rgba(227,38,27,0))}
+.ws .card{margin-bottom:22px}
+.ws .ctx{display:flex;justify-content:space-between;margin-bottom:5px;font-weight:800;font-style:italic;font-size:15px;text-transform:uppercase;color:#fff;opacity:.85}
+.ws .ctx b{font-weight:800;color:var(--ember)}
+.ws .r{height:42px}
+.ws .r .name{font-size:20px}
+.ws .r.tbd .name{font-weight:600;font-size:16px;text-transform:none;color:#4A423E}
+.ws .r.tbd{background:var(--box-dim)}
+.ws .livetag{display:inline-flex;align-items:center;gap:6px;padding:1px 9px;background:var(--red);color:#fff;font-weight:900;font-style:italic;clip-path:polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%)}
+.ws .livetag::before{content:"";width:7px;height:7px;border-radius:50%;background:#fff;animation:blink 1.2s steps(2) infinite}
+.ws .empty{font-weight:700;font-style:italic;font-size:20px;color:#fff;opacity:.7}
+.ws .card.in{animation:gpin .7s cubic-bezier(.2,.8,.2,1) both}
+.ws .card.move{animation:wsmove .5s ease both}
+@keyframes wsmove{from{opacity:.4;translate:0 -30px}}
+body.waiting .gp-only{display:none}
 
 /* ================= Controller ================= */
 body.control{background:#120806;min-height:100vh;font-family:'Montserrat',sans-serif;font-size:14px}
@@ -257,9 +278,9 @@ details.help code{background:#2A1812;padding:1px 6px;color:var(--ink)}
 </div>
 <div class="gp-wrap" id="gpWrap" hidden><div class="gp-stage" id="gpStage"></div></div>
 <div class="gp-off" id="gpOff" role="group" aria-label="Match updates">
-  <button id="gpTestMap">Test map popup</button>
-  <button id="gpTestMatch">Test match popup</button>
-  <button id="gpReplay">Replay last</button>
+  <button id="gpTestMap" class="gp-only">Test map popup</button>
+  <button id="gpTestMatch" class="gp-only">Test match popup</button>
+  <button id="gpReplay" class="gp-only">Replay last</button>
   <button id="gpCheckBtn">Check sheet now</button>
   <span id="gpStatus">Waiting for the sheet…</span>
 </div>
@@ -554,7 +575,7 @@ async function syncSheet(silent){
 
 /* ---------- Wiring ---------- */
 function toast(msg){ const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 1800); }
-const MODE = /control/i.test(location.hash) || /[?&]control/i.test(location.search) ? "control" : (/gameplay/i.test(location.hash + location.search) ? "gameplay" : "overlay");
+const MODE = /control/i.test(location.hash) || /[?&]control/i.test(location.search) ? "control" : (/gameplay/i.test(location.hash + location.search) ? "gameplay" : (/waiting|brb|intermission/i.test(location.hash + location.search) ? "waiting" : "overlay"));
 const PIN = (location.hash + location.search).match(/part=?([12])/i);
 let lastPart = null, syncTimer = null, rotTimer = null;
 // Overlay-side part choice: pinned by #part1/#part2, switched with keys 1/2 or double-click (OBS: right-click source → Interact),
@@ -710,8 +731,65 @@ function initGameplay(){
   gpCheck(); setInterval(gpCheck, 20000);
 }
 
+
+/* ---------- Waiting screen ---------- */
+const WS_DONE_KEY = "od_wildcard_ws_done_v1";
+const DAY = { Mon:1, Tue:2, Wed:3, Thu:4, Fri:5, Sat:6, Sun:7 };
+const timeKey = t => { const m = /^(\w{3})\s+(\d{1,2}):(\d{2})/.exec(t || ""); return m ? (DAY[m[1]] || 9) * 1440 + (+m[2]) * 60 + (+m[3]) : 99999; };
+let wsShown = { next: "", res: [] };
+function wsCard(id, r, st, kind, fresh){
+  const live = kind === "next" && st.live;
+  const right = live ? `<span class="livetag">Live</span>` : (kind === "next" ? `<b>${esc(st.time ? st.time + " CET" : "")}</b>` : (QUALIFIERS.has(id) ? `<b>${esc(r.winner)} to the Major</b>` : ""));
+  const row = (name, score, hint) => {
+    if (!realTeam(name)) return `<div class="r tbd"><span class="name">${esc(hint || "To be decided")}</span></div>`;
+    const t = TEAMS[name] || {}, img = t.logo && LOGOS[t.logo] ? `<img src="${LOGOS[t.logo]}" alt="">` : "";
+    const cls = kind === "res" ? (r.winner === name ? "up" : "down") : "";
+    return `<div class="r ${cls}"><span class="logo">${img}</span><span class="name">${esc(name)}</span><span class="score">${esc(score)}</span></div>`;
+  };
+  const sc = k => kind === "next" ? (st[k] === "" ? "" : st[k]) : st[k];
+  return `<div class="card${fresh ? " in" : ""}" data-id="${id}"><div class="ctx"><span>${esc(matchName(id))}</span>${right}</div>
+    ${row(r.t1, sc("s1"), r.hints[0])}${row(r.t2, sc("s2"), r.hints[1])}</div>`;
+}
+function wsRender(){
+  const R = resolve(), ids = Object.keys(STRUCT);
+  let done = {}; try { done = JSON.parse(localStorage.getItem(WS_DONE_KEY)) || {}; } catch(e) {}
+  const first = !Object.keys(done).length;
+  ids.forEach((id, i) => {
+    const r = R[id];
+    if (r.winner && r.loser !== "BYE" && realTeam(r.t1) && realTeam(r.t2)) { if (!done[id]) done[id] = first ? i + 1 : Date.now(); }
+    else delete done[id];
+  });
+  try { localStorage.setItem(WS_DONE_KEY, JSON.stringify(done)); } catch(e) {}
+  const results = Object.keys(done).sort((a, b) => done[b] - done[a]).slice(0, 3);
+  const playable = id => !R[id].winner && R[id].t1 !== "BYE" && R[id].t2 !== "BYE";
+  const upcoming = ids.filter(playable).sort((a, b) => (STATE.matches[b].live - STATE.matches[a].live) || (timeKey(STATE.matches[a].time) - timeKey(STATE.matches[b].time)) || (ids.indexOf(a) - ids.indexOf(b))).slice(0, 3);
+  const nextHTML = upcoming.length ? upcoming.map(id => wsCard(id, R[id], STATE.matches[id], "next", false)).join("") : `<div class="empty">All matches played. See you at the Major.</div>`;
+  const resHTML = results.length ? results.map(id => wsCard(id, R[id], STATE.matches[id], "res", wsShown.res.length && !wsShown.res.includes(id))).join("") : `<div class="empty">No results yet.</div>`;
+  const stage = document.getElementById("gpStage");
+  if (!stage.querySelector(".ws")) stage.innerHTML = `<div class="ws next"><h2>Up next</h2><div class="list"></div></div><div class="ws res"><h2>Latest results</h2><div class="list"></div></div>`;
+  const [nl, rl] = stage.querySelectorAll(".ws .list");
+  if (nextHTML !== wsShown.next) { nl.innerHTML = nextHTML; wsShown.next = nextHTML; }
+  const key = results.join("|") + JSON.stringify(results.map(id => [STATE.matches[id].s1, STATE.matches[id].s2]));
+  if (key !== wsShown.key) { rl.innerHTML = resHTML; wsShown.key = key; }
+  wsShown.res = results;
+}
+async function wsCheck(){
+  const status = document.getElementById("gpStatus");
+  await syncSheet(true);
+  const failed = /Couldn't/.test(document.getElementById("syncStatus").textContent);
+  wsRender();
+  status.textContent = failed ? "Couldn't reach the sheet. Retrying in 20 s." : `Sheet checked at ${new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", second:"2-digit"})}`;
+}
+function initWaiting(){
+  document.body.className = "waiting"; document.getElementById("gpWrap").hidden = false;
+  gpFit(); window.addEventListener("resize", gpFit);
+  gpCheckBtn.onclick = () => wsCheck();
+  wsRender(); wsCheck(); setInterval(wsCheck, 20000);
+}
+
 function init(){
   if (MODE === "gameplay") { initGameplay(); return; }
+  if (MODE === "waiting") { initWaiting(); return; }
   if (MODE === "control") {
     document.body.className = "control"; document.getElementById("ctl").hidden = false;
     const bind = (id, key, ev, get) => document.getElementById(id).addEventListener(ev, e => { STATE.opts[key] = get(e.target); save(); if (key.startsWith("rotate")) setRotate(); });

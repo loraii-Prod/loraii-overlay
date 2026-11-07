@@ -36,6 +36,12 @@ a banner bottom-left when a map is won (score, who leads, match point) or a matc
 is eliminated or qualifies for the Major). Source 1920×1160, crop bottom 80; the strip has Test map popup,
 Test match popup, Replay last and Check sheet now (via Interact). Refreshing doesn't replay old results.
 
+## Waiting screen: up next + latest results
+
+`…/#waiting` sits under "We'll be right back" on the intermission scene: **Up next** (live match first, then by
+start time) and **Latest results** (newest first, 3 each). Checks the sheet every 20 s; new results slide in.
+Source 1920×1160, crop bottom 80 (Check sheet now button via Interact).
+
 ## Switching parts in a single OBS source
 
 - Add `rotate=N` to the address to alternate Part 1 and Part 2 every N seconds.
