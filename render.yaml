@@ -1,0 +1,13 @@
+# Render Blueprint for the OverDrive Wildcard 2026 bracket (static site, free plan).
+# Render → New → Blueprint → this repo → branch "overdrive-wildcard-bracket".
+services:
+  - type: web
+    name: overdrive-wildcard-bracket
+    runtime: static
+    branch: overdrive-wildcard-bracket
+    buildCommand: echo "static site, nothing to build"
+    staticPublishPath: .
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
