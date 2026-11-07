@@ -29,6 +29,13 @@ This branch only holds the bracket. It shares no files with the loraii overlays 
    sources apart, and a controller in a normal browser never reaches OBS. If changes don't show on stream,
    use `#sheet` (scores from the Google Sheet) plus `rotate=` or Interact for switching parts.
 
+## Gameplay scene: match updates
+
+`…/#gameplay` is a separate transparent view for the gameplay scene. It checks the sheet every 20 s and pops up
+a banner bottom-left when a map is won (score, who leads, match point) or a match ends (who advances, drops,
+is eliminated or qualifies for the Major). Source 1920×1160, crop bottom 80; the strip has Test map popup,
+Test match popup, Replay last and Check sheet now (via Interact). Refreshing doesn't replay old results.
+
 ## Switching parts in a single OBS source
 
 - Add `rotate=N` to the address to alternate Part 1 and Part 2 every N seconds.

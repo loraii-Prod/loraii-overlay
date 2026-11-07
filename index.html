@@ -122,6 +122,44 @@ body.overlay.has-room .offzone{display:flex}
 .offzone button:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
 .offzone span{margin-left:auto;color:#B9AEA8;font-size:14px}
 
+
+/* ================= Gameplay match updates ================= */
+body.gameplay{overflow:hidden}
+.gp-wrap{position:relative;width:100vw;height:100vh}
+.gp-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden}
+.gp{position:absolute;left:60px;bottom:110px;display:flex;align-items:stretch;filter:drop-shadow(0 8px 18px rgba(0,0,0,.45))}
+.gp .tag{width:150px;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 10px 0 4px;
+  background:linear-gradient(135deg,var(--orange),var(--red));clip-path:polygon(0 0,100% 0,calc(100% - 22px) 100%,0 100%);margin-right:-18px;z-index:1}
+.gp .tag small{font-weight:800;font-style:italic;font-size:15px;text-transform:uppercase;letter-spacing:.5px;color:#fff;opacity:.9}
+.gp .tag b{font-family:'Anton',sans-serif;font-weight:400;font-size:58px;line-height:.95;text-transform:uppercase;color:#fff}
+.gp.gp-match .tag{width:190px}
+.gp.gp-match .tag b{font-size:44px;line-height:1}
+.gp .body{display:flex;flex-direction:column;min-width:620px}
+.gp .rows{display:flex;flex-direction:column;gap:3px;padding-left:26px;background:transparent}
+.gp .r{height:46px;display:flex;align-items:center;background:var(--box);color:var(--text)}
+.gp .r .logo{width:34px;height:34px;margin-left:10px;display:flex;align-items:center;justify-content:center;background:#141414;border-radius:3px}
+.gp .r .logo img{width:28px;height:28px;object-fit:contain}
+.gp .r .name{flex:1;padding:0 14px;font-weight:800;font-style:italic;font-size:22px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gp .r .score{width:58px;align-self:stretch;display:flex;align-items:center;justify-content:center;background:#1B1210;color:#fff;font-weight:900;font-style:italic;font-size:26px}
+.gp .r.up .score{background:linear-gradient(135deg,var(--orange),var(--red))}
+.gp .r.up{box-shadow:inset 5px 0 0 var(--orange)}
+.gp .r.down{background:var(--box-dim)}
+.gp .r.down .name{color:#5E5652}
+.gp .line{margin:3px 0 0 26px;padding:9px 16px;background:rgba(22,10,7,.92);color:#fff;font-weight:800;font-style:italic;font-size:19px;text-transform:uppercase;letter-spacing:.2px}
+.gp .line em{font-style:italic;color:var(--ember)}
+.gp .ctx{margin:0 0 4px 26px;font-weight:800;font-style:italic;font-size:15px;text-transform:uppercase;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.7)}
+.gp.in{animation:gpin .6s cubic-bezier(.2,.8,.2,1) both}
+.gp.out{animation:gpout .45s cubic-bezier(.6,0,.9,.4) both}
+@keyframes gpin{from{opacity:0;translate:-120px 0;clip-path:inset(0 100% 0 0)}to{opacity:1;translate:0 0;clip-path:inset(0 0 0 0)}}
+@keyframes gpout{to{opacity:0;translate:-80px 0}}
+@media (prefers-reduced-motion: reduce){.gp.in,.gp.out{animation:none}}
+.gp-off{position:absolute;left:0;right:0;display:none;align-items:center;gap:12px;padding:0 20px;background:#120806;border-top:2px solid var(--orange);font-family:'Montserrat',sans-serif}
+body.gameplay.has-room .gp-off{display:flex}
+.gp-off button{all:unset;cursor:pointer;padding:10px 18px;background:#2A1812;border:1px solid #4A2B20;color:#fff;font-weight:800;font-style:italic;font-size:16px;text-transform:uppercase}
+.gp-off button:hover{background:#3A2219}
+.gp-off button:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+.gp-off span{margin-left:auto;color:#B9AEA8;font-size:14px}
+
 /* ================= Controller ================= */
 body.control{background:#120806;min-height:100vh;font-family:'Montserrat',sans-serif;font-size:14px}
 .ctl{max-width:1480px;margin:0 auto;padding:22px 24px 60px}
@@ -216,6 +254,14 @@ details.help code{background:#2A1812;padding:1px 6px;color:var(--ink)}
   <button id="oz2" aria-pressed="false">Part 2</button>
   <button id="ozAuto" aria-pressed="false">Auto switch</button>
   <span>Below 1080 px: crop this strip off in OBS</span>
+</div>
+<div class="gp-wrap" id="gpWrap" hidden><div class="gp-stage" id="gpStage"></div></div>
+<div class="gp-off" id="gpOff" role="group" aria-label="Match updates">
+  <button id="gpTestMap">Test map popup</button>
+  <button id="gpTestMatch">Test match popup</button>
+  <button id="gpReplay">Replay last</button>
+  <button id="gpCheckBtn">Check sheet now</button>
+  <span id="gpStatus">Waiting for the sheet…</span>
 </div>
 <div class="toast" id="toast" role="status"></div>
 
@@ -508,7 +554,7 @@ async function syncSheet(silent){
 
 /* ---------- Wiring ---------- */
 function toast(msg){ const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 1800); }
-const MODE = /control/i.test(location.hash) || /[?&]control/i.test(location.search) ? "control" : "overlay";
+const MODE = /control/i.test(location.hash) || /[?&]control/i.test(location.search) ? "control" : (/gameplay/i.test(location.hash + location.search) ? "gameplay" : "overlay");
 const PIN = (location.hash + location.search).match(/part=?([12])/i);
 let lastPart = null, syncTimer = null, rotTimer = null;
 // Overlay-side part choice: pinned by #part1/#part2, switched with keys 1/2 or double-click (OBS: right-click source → Interact),
@@ -560,7 +606,112 @@ function showPart(wrap, part){
 function setRotate(){ clearInterval(rotTimer); if (STATE.opts.rotate) rotTimer = setInterval(() => { STATE.air = STATE.air === 1 ? 2 : 1; save(); }, Math.max(5, STATE.opts.rotateSec) * 1000); }
 function setAutoSync(on){ clearInterval(syncTimer); syncTimer = on ? setInterval(() => syncSheet(true), 45000) : null; }
 
+
+/* ---------- Gameplay scene: popups when a map or a match is won ---------- */
+const GP_SNAP_KEY = "od_wildcard_gp_snapshot_v1";
+const GP_HOLD = { map: 8000, match: 11000 };
+const gpQueue = []; let gpBusy = false, gpLast = null;
+const nextFrom = (id, kind) => Object.keys(STRUCT).find(k => STRUCT[k].some(s => typeof s === "object" && s[kind] === id));
+function snapshot(){
+  const R = resolve(), out = {};
+  for (const id of Object.keys(STRUCT)) out[id] = { s1: STATE.matches[id].s1, s2: STATE.matches[id].s2, t1: R[id].t1, t2: R[id].t2, w: R[id].winner };
+  return out;
+}
+function realTeam(n){ return n && n !== "BYE"; }
+function diffEvents(prev, now){
+  const ev = [];
+  for (const id of Object.keys(now)) {
+    const a = prev[id], b = now[id];
+    if (!a || !realTeam(b.t1) || !realTeam(b.t2)) continue;
+    if (a.t1 !== b.t1 || a.t2 !== b.t2) continue;                // teams just got filled in: not a result
+    if (b.w && !a.w) { ev.push({ kind: "match", id }); continue; }
+    if (b.w) continue;
+    const n = k => parseInt(b[k], 10) || 0, o = k => parseInt(a[k], 10) || 0;
+    const up1 = n("s1") > o("s1"), up2 = n("s2") > o("s2");
+    if (up1 || up2) ev.push({ kind: "map", id, side: up1 && up2 ? 0 : (up1 ? 1 : 2), jump: (n("s1") + n("s2")) - (o("s1") + o("s2")) });
+  }
+  return ev;
+}
+function teamRow(name, score, cls){
+  const t = TEAMS[name] || {}, img = t.logo && LOGOS[t.logo] ? `<img src="${LOGOS[t.logo]}" alt="">` : "";
+  return `<div class="r ${cls}"><span class="logo">${img}</span><span class="name">${esc(name)}</span><span class="score">${esc(score)}</span></div>`;
+}
+function popupHTML(e){
+  const R = resolve(), r = R[e.id], st = STATE.matches[e.id];
+  const ctx = matchName(e.id) + (QUALIFIERS.has(e.id) ? " · qualifier for the Major" : "");
+  if (e.kind === "map") {
+    const s1 = parseInt(st.s1,10) || 0, s2 = parseInt(st.s2,10) || 0, mapNo = s1 + s2;
+    const who = e.side === 1 ? r.t1 : r.t2;
+    const lead = s1 === s2 ? `Series tied ${s1}–${s2}` : `${s1 > s2 ? r.t1 : r.t2} lead ${Math.max(s1,s2)}–${Math.min(s1,s2)}`;
+    const point = [s1, s2].some(v => v === WINS_NEEDED - 1) ? ` · <em>${s1 === s2 ? "Decider next" : "Match point"}</em>` : "";
+    const head = e.side === 0 || e.jump > 1 ? `<small>After map ${mapNo}</small><b>Score</b>` : `<small>Map ${mapNo}</small><b>Won</b>`;
+    const first = e.side === 0 || e.jump > 1 ? "Score update" : `Map ${mapNo} to ${esc(who)}`;
+    return `<div class="gp gp-map"><div class="tag">${head}</div><div class="body">
+      <div class="ctx">${esc(ctx)}</div>
+      <div class="rows">${teamRow(r.t1, st.s1 || "0", e.side === 1 ? "up" : "")}${teamRow(r.t2, st.s2 || "0", e.side === 2 ? "up" : "")}</div>
+      <div class="line">${first} · ${esc(lead)}${point}</div></div></div>`;
+  }
+  const W = r.winner, L = r.loser, wo = st.s1 === "W" || st.s2 === "W";
+  const wn = nextFrom(e.id, "w"), ln = nextFrom(e.id, "l");
+  let fate;
+  if (QUALIFIERS.has(e.id)) fate = `<em>${esc(W)} qualify for the OverDrive Major</em>` + (ln ? ` · ${esc(L)} drop to ${esc(matchName(ln))}` : ` · ${esc(L)} are out`);
+  else fate = `${esc(W)} advance to ${esc(matchName(wn))} · ` + (ln ? `${esc(L)} drop to the lower bracket` : `<em>${esc(L)} are eliminated</em>`);
+  return `<div class="gp gp-match"><div class="tag"><small>${wo ? "Walkover" : "Match over"}</small><b>${esc(W === r.t1 ? st.s1 : st.s2)}–${esc(W === r.t1 ? st.s2 : st.s1)}</b></div><div class="body">
+    <div class="ctx">${esc(ctx)}</div>
+    <div class="rows">${teamRow(r.t1, st.s1, W === r.t1 ? "up" : "down")}${teamRow(r.t2, st.s2, W === r.t2 ? "up" : "down")}</div>
+    <div class="line">${fate}</div></div></div>`;
+}
+function gpShow(e, html){ gpQueue.push({ e, html: html || popupHTML(e) }); gpNext(); }
+function gpNext(){
+  if (gpBusy || !gpQueue.length) return;
+  gpBusy = true; const { e, html } = gpQueue.shift(); gpLast = { e, html };
+  const st = document.getElementById("gpStage"); st.innerHTML = html;
+  const el = st.firstElementChild; el.classList.add("in");
+  setTimeout(() => { el.classList.remove("in"); el.classList.add("out"); }, GP_HOLD[e.kind]);
+  setTimeout(() => { st.innerHTML = ""; gpBusy = false; gpNext(); }, GP_HOLD[e.kind] + 500);
+}
+function gpFit(){
+  const w = window.innerWidth, h = window.innerHeight, sc = Math.min(w/1920, h/1080);
+  document.getElementById("gpStage").style.transform = `scale(${sc})`;
+  const used = 1080 * sc, room = h - used, off = document.getElementById("gpOff");
+  document.body.classList.toggle("has-room", room >= 40); off.style.top = used + "px"; off.style.height = room + "px";
+}
+async function gpCheck(){
+  const status = document.getElementById("gpStatus");
+  const before = snapshot();
+  let prev; try { prev = JSON.parse(localStorage.getItem(GP_SNAP_KEY)); } catch(e) {}
+  const ok = await syncSheet(true).then(() => !/Couldn't/.test(document.getElementById("syncStatus").textContent));
+  const now = snapshot();
+  if (!ok) { status.textContent = "Couldn't reach the sheet. Retrying in 20 s."; return; }
+  const base = prev && Object.keys(prev).length ? prev : null;
+  const events = base ? diffEvents(base, now) : [];
+  try { localStorage.setItem(GP_SNAP_KEY, JSON.stringify(now)); } catch(e) {}
+  events.forEach(ev => gpShow(ev));
+  status.textContent = `Sheet checked at ${new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", second:"2-digit"})}` + (events.length ? ` · ${events.length} new` : "") + (base ? "" : " · starting point saved");
+}
+function gpDemo(kind){
+  const R = resolve();
+  const id = Object.keys(STRUCT).find(k => realTeam(R[k].t1) && realTeam(R[k].t2) && !R[k].winner) || "R1_UB2";
+  const r = R[id], saved = { ...STATE.matches[id] };
+  const st = STATE.matches[id];
+  if (kind === "map") { st.s1 = "2"; st.s2 = "1"; }
+  else { st.s1 = "3"; st.s2 = "1"; }
+  const html = popupHTML(kind === "map" ? { kind, id, side: 1 } : { kind, id });
+  Object.assign(STATE.matches[id], saved);
+  gpShow({ kind, id }, html);
+}
+function initGameplay(){
+  document.body.className = "gameplay"; document.getElementById("gpWrap").hidden = false;
+  gpFit(); window.addEventListener("resize", gpFit);
+  gpTestMap.onclick = () => gpDemo("map");
+  gpTestMatch.onclick = () => gpDemo("match");
+  gpReplay.onclick = () => { if (gpLast) gpShow(gpLast.e, gpLast.html); };
+  gpCheckBtn.onclick = () => gpCheck();
+  gpCheck(); setInterval(gpCheck, 20000);
+}
+
 function init(){
+  if (MODE === "gameplay") { initGameplay(); return; }
   if (MODE === "control") {
     document.body.className = "control"; document.getElementById("ctl").hidden = false;
     const bind = (id, key, ev, get) => document.getElementById(id).addEventListener(ev, e => { STATE.opts[key] = get(e.target); save(); if (key.startsWith("rotate")) setRotate(); });
