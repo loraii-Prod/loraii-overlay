@@ -38,8 +38,8 @@ Test match popup, Replay last and Check sheet now (via Interact). Refreshing doe
 
 ## Waiting screen: up next + latest results
 
-`…/#waiting` sits under "We'll be right back" on the intermission scene: **Up next** (live match first, then by
-start time) and **Latest results** (newest first, 3 each). Checks the sheet every 20 s; new results slide in.
+`…/#waiting` sits under "We'll be right back" on the intermission scene: one line for the live or next match and one
+for the latest result. Checks the sheet every 20 s; changes fade in.
 Source 1920×1160, crop bottom 80 (Check sheet now button via Interact).
 
 ## Switching parts in a single OBS source

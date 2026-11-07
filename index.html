@@ -161,24 +161,19 @@ body.gameplay.has-room .gp-off,body.waiting.has-room .gp-off{display:flex}
 .gp-off span{margin-left:auto;color:#B9AEA8;font-size:14px}
 
 
-/* ================= Waiting screen: up next + latest results ================= */
-.ws{position:absolute;top:540px;width:640px}
-.ws.next{left:290px}.ws.res{left:990px}
-.ws h2{margin:0 0 18px;display:flex;align-items:baseline;gap:14px;font-weight:900;font-style:italic;font-size:30px;text-transform:uppercase;color:#fff}
-.ws h2::after{content:"";flex:1;height:3px;background:linear-gradient(90deg,var(--orange),rgba(227,38,27,0))}
-.ws .card{margin-bottom:22px}
-.ws .ctx{display:flex;justify-content:space-between;margin-bottom:5px;font-weight:800;font-style:italic;font-size:15px;text-transform:uppercase;color:#fff;opacity:.85}
-.ws .ctx b{font-weight:800;color:var(--ember)}
-.ws .r{height:42px}
-.ws .r .name{font-size:20px}
-.ws .r.tbd .name{font-weight:600;font-size:16px;text-transform:none;color:#4A423E}
-.ws .r.tbd{background:var(--box-dim)}
-.ws .livetag{display:inline-flex;align-items:center;gap:6px;padding:1px 9px;background:var(--red);color:#fff;font-weight:900;font-style:italic;clip-path:polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%)}
-.ws .livetag::before{content:"";width:7px;height:7px;border-radius:50%;background:#fff;animation:blink 1.2s steps(2) infinite}
-.ws .empty{font-weight:700;font-style:italic;font-size:20px;color:#fff;opacity:.7}
-.ws .card.in{animation:gpin .7s cubic-bezier(.2,.8,.2,1) both}
-.ws .card.move{animation:wsmove .5s ease both}
-@keyframes wsmove{from{opacity:.4;translate:0 -30px}}
+/* ================= Waiting screen: next match + latest result ================= */
+.ws2{position:absolute;left:0;right:0;text-align:center;color:#fff}
+.ws2.next{top:540px}.ws2.res{top:750px}
+.ws2 .lbl{display:inline-block;margin-bottom:16px;padding:3px 14px;font-weight:900;font-style:italic;font-size:18px;text-transform:uppercase;letter-spacing:1px;
+  background:linear-gradient(135deg,var(--orange),var(--red));clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%)}
+.ws2 .lbl.on-air{background:var(--red)}
+.ws2 .line{display:flex;justify-content:center;align-items:center;gap:22px;font-weight:900;font-style:italic;font-size:46px;text-transform:uppercase;line-height:1}
+.ws2 .line img{width:52px;height:52px;object-fit:contain}
+.ws2 .vs{font-size:26px;opacity:.6}
+.ws2 .sc{font-family:'Anton',sans-serif;font-style:normal;font-weight:400;font-size:58px;letter-spacing:2px}
+.ws2 .dim{opacity:.45}
+.ws2 .sub{margin-top:12px;font-weight:700;font-style:italic;font-size:18px;text-transform:uppercase;opacity:.7}
+.ws2.in{animation:fadein .8s ease both}
 body.waiting .gp-only{display:none}
 
 /* ================= Controller ================= */
@@ -736,19 +731,10 @@ function initGameplay(){
 const WS_DONE_KEY = "od_wildcard_ws_done_v1";
 const DAY = { Mon:1, Tue:2, Wed:3, Thu:4, Fri:5, Sat:6, Sun:7 };
 const timeKey = t => { const m = /^(\w{3})\s+(\d{1,2}):(\d{2})/.exec(t || ""); return m ? (DAY[m[1]] || 9) * 1440 + (+m[2]) * 60 + (+m[3]) : 99999; };
-let wsShown = { next: "", res: [] };
-function wsCard(id, r, st, kind, fresh){
-  const live = kind === "next" && st.live;
-  const right = live ? `<span class="livetag">Live</span>` : (kind === "next" ? `<b>${esc(st.time ? st.time + " CET" : "")}</b>` : (QUALIFIERS.has(id) ? `<b>${esc(r.winner)} to the Major</b>` : ""));
-  const row = (name, score, hint) => {
-    if (!realTeam(name)) return `<div class="r tbd"><span class="name">${esc(hint || "To be decided")}</span></div>`;
-    const t = TEAMS[name] || {}, img = t.logo && LOGOS[t.logo] ? `<img src="${LOGOS[t.logo]}" alt="">` : "";
-    const cls = kind === "res" ? (r.winner === name ? "up" : "down") : "";
-    return `<div class="r ${cls}"><span class="logo">${img}</span><span class="name">${esc(name)}</span><span class="score">${esc(score)}</span></div>`;
-  };
-  const sc = k => kind === "next" ? (st[k] === "" ? "" : st[k]) : st[k];
-  return `<div class="card${fresh ? " in" : ""}" data-id="${id}"><div class="ctx"><span>${esc(matchName(id))}</span>${right}</div>
-    ${row(r.t1, sc("s1"), r.hints[0])}${row(r.t2, sc("s2"), r.hints[1])}</div>`;
+let wsShown = {};
+function wsTeam(name, cls){
+  const t = TEAMS[name] || {}, img = t.logo && LOGOS[t.logo] ? `<img src="${LOGOS[t.logo]}" alt="">` : "";
+  return { img, name: `<span class="${cls || ""}">${esc(name)}</span>` };
 }
 function wsRender(){
   const R = resolve(), ids = Object.keys(STRUCT);
@@ -760,18 +746,28 @@ function wsRender(){
     else delete done[id];
   });
   try { localStorage.setItem(WS_DONE_KEY, JSON.stringify(done)); } catch(e) {}
-  const results = Object.keys(done).sort((a, b) => done[b] - done[a]).slice(0, 3);
-  const playable = id => !R[id].winner && R[id].t1 !== "BYE" && R[id].t2 !== "BYE";
-  const upcoming = ids.filter(playable).sort((a, b) => (STATE.matches[b].live - STATE.matches[a].live) || (timeKey(STATE.matches[a].time) - timeKey(STATE.matches[b].time)) || (ids.indexOf(a) - ids.indexOf(b))).slice(0, 3);
-  const nextHTML = upcoming.length ? upcoming.map(id => wsCard(id, R[id], STATE.matches[id], "next", false)).join("") : `<div class="empty">All matches played. See you at the Major.</div>`;
-  const resHTML = results.length ? results.map(id => wsCard(id, R[id], STATE.matches[id], "res", wsShown.res.length && !wsShown.res.includes(id))).join("") : `<div class="empty">No results yet.</div>`;
+  const last = Object.keys(done).sort((a, b) => done[b] - done[a])[0];
+  const ready = id => !R[id].winner && realTeam(R[id].t1) && realTeam(R[id].t2);
+  const next = ids.filter(ready).sort((a, b) => (STATE.matches[b].live - STATE.matches[a].live) || (timeKey(STATE.matches[a].time) - timeKey(STATE.matches[b].time)) || (ids.indexOf(a) - ids.indexOf(b)))[0];
+  let nextHTML = "", resHTML = "";
+  if (next) {
+    const st = STATE.matches[next], a = wsTeam(R[next].t1), b = wsTeam(R[next].t2);
+    nextHTML = `<div class="lbl${st.live ? " on-air" : ""}">${st.live ? "Live now" : "Up next"}</div>
+      <div class="line">${a.img}${a.name}<span class="vs">vs</span>${b.name}${b.img}</div>
+      <div class="sub">${esc(matchName(next))}${!st.live && st.time ? " · " + esc(st.time) + " CET" : ""}</div>`;
+  }
+  if (last) {
+    const st = STATE.matches[last], r = R[last], w1 = r.winner === r.t1;
+    const a = wsTeam(r.t1, w1 ? "" : "dim"), b = wsTeam(r.t2, w1 ? "dim" : "");
+    resHTML = `<div class="lbl">Latest result</div>
+      <div class="line">${a.img}${a.name}<span class="sc">${esc(st.s1)}–${esc(st.s2)}</span>${b.name}${b.img}</div>
+      <div class="sub">${esc(matchName(last))}${QUALIFIERS.has(last) ? " · " + esc(r.winner) + " qualify for the Major" : ""}</div>`;
+  }
   const stage = document.getElementById("gpStage");
-  if (!stage.querySelector(".ws")) stage.innerHTML = `<div class="ws next"><h2>Up next</h2><div class="list"></div></div><div class="ws res"><h2>Latest results</h2><div class="list"></div></div>`;
-  const [nl, rl] = stage.querySelectorAll(".ws .list");
-  if (nextHTML !== wsShown.next) { nl.innerHTML = nextHTML; wsShown.next = nextHTML; }
-  const key = results.join("|") + JSON.stringify(results.map(id => [STATE.matches[id].s1, STATE.matches[id].s2]));
-  if (key !== wsShown.key) { rl.innerHTML = resHTML; wsShown.key = key; }
-  wsShown.res = results;
+  if (!stage.querySelector(".ws2")) stage.innerHTML = `<div class="ws2 next"></div><div class="ws2 res"></div>`;
+  const [n, rr] = stage.querySelectorAll(".ws2");
+  const put = (el, html, key) => { if (wsShown[key] === html) return; el.innerHTML = html; el.classList.remove("in"); void el.offsetWidth; if (wsShown[key] !== undefined) el.classList.add("in"); wsShown[key] = html; };
+  put(n, nextHTML, "next"); put(rr, resHTML, "res");
 }
 async function wsCheck(){
   const status = document.getElementById("gpStatus");
