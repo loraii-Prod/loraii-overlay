@@ -32,7 +32,9 @@ This branch only holds the bracket. It shares no files with the loraii overlays 
 ## Switching parts in a single OBS source
 
 - Add `rotate=N` to the address to alternate Part 1 and Part 2 every N seconds.
-- Or right-click the source → **Interact** and press **1** or **2** (or double-click) to switch by hand.
+- Or set the source to **1920×1160** and crop **80 px** off the bottom (Edit Transform → Crop Bottom 80).
+  The strip below the picture has **Part 1**, **Part 2** and **Auto switch** buttons: right-click the
+  source → **Interact** to click them. Viewers never see the strip. Keys **1** / **2** work too.
 - Both play the slide-in animation and need no controller.
 
 ## Controller

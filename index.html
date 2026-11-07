@@ -110,6 +110,14 @@ body.overlay .stage-wrap{width:100vw;height:100vh}
 @keyframes race{from{opacity:0;translate:-50px 0}to{opacity:1;translate:0 0}}
 @media (prefers-reduced-motion: reduce){.stage.enter .row,.stage.enter .hdr h1{animation:none}.live::before{animation:none}}
 
+/* Button strip below the 1080 line: visible in OBS Interact, cropped off stream */
+.offzone{position:absolute;left:0;right:0;display:none;align-items:center;gap:12px;padding:0 20px;background:#120806;border-top:2px solid var(--orange);font-family:'Montserrat',sans-serif}
+body.overlay.has-room .offzone{display:flex}
+.offzone button{all:unset;cursor:pointer;padding:10px 22px;background:#2A1812;border:1px solid #4A2B20;color:#fff;font-weight:800;font-style:italic;font-size:18px;text-transform:uppercase}
+.offzone button[aria-pressed=true]{background:linear-gradient(135deg,var(--orange),var(--red));border-color:var(--red)}
+.offzone button:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+.offzone span{margin-left:auto;color:#B9AEA8;font-size:14px}
+
 /* ================= Controller ================= */
 body.control{background:#120806;min-height:100vh;font-family:'Montserrat',sans-serif;font-size:14px}
 .ctl{max-width:1480px;margin:0 auto;padding:22px 24px 60px}
@@ -189,7 +197,7 @@ details.help code{background:#2A1812;padding:1px 6px;color:var(--ink)}
     Add this file as a <b>Browser Source</b> at 1920×1080 with “Local file” ticked. It shows whichever part is on air here, on a transparent background unless the fire backdrop is on.
     Then add it again as a <b>Custom Browser Dock</b> with <code>#control</code> on the end of the address to get this controller inside OBS.
     Both share storage, so changes reach the stream within a second.
-    One source on its own: add <code>#rotate=20&amp;sheet</code> to switch parts every 20 s and pull scores from the sheet, or right-click the source → <b>Interact</b> and press <b>1</b> / <b>2</b>. Use <code>#part1</code> or <code>#part2</code> to lock a source to one part.
+    One source on its own: add <code>#rotate=20&amp;sheet</code> to switch parts every 20 s and pull scores from the sheet, or make the source 1920×1160, crop 80 px off the bottom, and use the Part 1 / Part 2 buttons below the picture through right-click → <b>Interact</b> (keys <b>1</b> / <b>2</b> work too). Use <code>#part1</code> or <code>#part2</code> to lock a source to one part.
   </details>
   <div class="preview stage-wrap" id="previewWrap"></div>
   <div class="ptabs" role="group" aria-label="Edit matches">
@@ -199,6 +207,12 @@ details.help code{background:#2A1812;padding:1px 6px;color:var(--ink)}
   <div class="board" id="board"></div>
 </div>
 <div class="stage-wrap" id="overlayWrap" hidden></div>
+<div class="offzone" id="offzone" role="group" aria-label="Part on stream">
+  <button id="oz1" aria-pressed="false">Part 1</button>
+  <button id="oz2" aria-pressed="false">Part 2</button>
+  <button id="ozAuto" aria-pressed="false">Auto switch</button>
+  <span>Below 1080 px: crop this strip off in OBS</span>
+</div>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -389,7 +403,13 @@ function fit(wrap){
   const st = wrap.querySelector(".stage"); if (!st) return;
   const w = wrap.clientWidth, h = MODE === "control" ? w*1080/1920 : wrap.clientHeight;
   if (MODE === "control") wrap.style.height = h + "px";
-  st.style.transform = `scale(${Math.min(w/1920, h/1080)})`;
+  const sc = Math.min(w/1920, h/1080);
+  st.style.transform = `scale(${sc})`;
+  if (MODE === "overlay") {
+    const used = 1080 * sc, room = window.innerHeight - used;
+    document.body.classList.toggle("has-room", room >= 40);
+    const oz = document.getElementById("offzone"); oz.style.top = used + "px"; oz.style.height = room + "px";
+  }
 }
 
 /* ---------- Controller ---------- */
@@ -510,6 +530,7 @@ function renderAll(){
   } else {
     const part = LOCAL_PART || STATE.air;
     const ow = document.getElementById("overlayWrap"); ow.innerHTML = stageHTML(part, part !== lastPart); lastPart = part; fit(ow);
+    oz1.setAttribute("aria-pressed", part === 1); oz2.setAttribute("aria-pressed", part === 2);
   }
 }
 function setRotate(){ clearInterval(rotTimer); if (STATE.opts.rotate) rotTimer = setInterval(() => { STATE.air = STATE.air === 1 ? 2 : 1; save(); }, Math.max(5, STATE.opts.rotateSec) * 1000); }
@@ -536,7 +557,13 @@ function init(){
     document.body.className = "overlay"; document.getElementById("overlayWrap").hidden = false;
     document.addEventListener("keydown", e => { if (e.key === "1" || e.key === "2") setLocalPart(+e.key); });
     document.addEventListener("dblclick", () => setLocalPart(((LOCAL_PART || STATE.air) === 1) ? 2 : 1));
-    if (ROTATE) { if (!LOCAL_PART) LOCAL_PART = 1; setInterval(() => setLocalPart(LOCAL_PART === 1 ? 2 : 1), Math.max(5, +ROTATE[1]) * 1000); }
+    const rotSec = ROTATE ? Math.max(5, +ROTATE[1]) : 20;
+    let autoTimer = null;
+    const setAuto = on => { clearInterval(autoTimer); autoTimer = on ? setInterval(() => setLocalPart((LOCAL_PART || STATE.air) === 1 ? 2 : 1), rotSec * 1000) : null; ozAuto.setAttribute("aria-pressed", on); ozAuto.textContent = on ? `Auto switch: ${rotSec} s` : "Auto switch"; };
+    oz1.onclick = () => { setAuto(false); setLocalPart(1); };
+    oz2.onclick = () => { setAuto(false); setLocalPart(2); };
+    ozAuto.onclick = () => setAuto(!autoTimer);
+    if (ROTATE) { if (!LOCAL_PART) LOCAL_PART = 1; setAuto(true); }
   }
   renderAll();
   window.addEventListener("resize", () => fit(document.getElementById(MODE === "control" ? "previewWrap" : "overlayWrap")));
