@@ -110,6 +110,10 @@ body.overlay .stage-wrap{width:100vw;height:100vh}
 @keyframes race{from{opacity:0;translate:-50px 0}to{opacity:1;translate:0 0}}
 @media (prefers-reduced-motion: reduce){.stage.enter .row,.stage.enter .hdr h1{animation:none}.live::before{animation:none}}
 
+
+/* Part-to-part slide */
+.stage.sliding{will-change:translate}
+
 /* Button strip below the 1080 line: visible in OBS Interact, cropped off stream */
 .offzone{position:absolute;left:0;right:0;display:none;align-items:center;gap:12px;padding:0 20px;background:#120806;border-top:2px solid var(--orange);font-family:'Montserrat',sans-serif}
 body.overlay.has-room .offzone{display:flex}
@@ -404,7 +408,7 @@ function fit(wrap){
   const w = wrap.clientWidth, h = MODE === "control" ? w*1080/1920 : wrap.clientHeight;
   if (MODE === "control") wrap.style.height = h + "px";
   const sc = Math.min(w/1920, h/1080);
-  st.style.transform = `scale(${sc})`;
+  wrap.querySelectorAll(".stage").forEach(x => x.style.transform = `scale(${sc})`);
   if (MODE === "overlay") {
     const used = 1080 * sc, room = window.innerHeight - used;
     document.body.classList.toggle("has-room", room >= 40);
@@ -517,7 +521,7 @@ function setLocalPart(n){ LOCAL_PART = n; try { localStorage.setItem("od_local_p
 function renderAll(){
   if (MODE === "control") {
     const pw = document.getElementById("previewWrap");
-    const part = STATE.air; pw.innerHTML = stageHTML(part, part !== lastPart); lastPart = part; fit(pw);
+    const part = STATE.air; if (TRANSITIONING) DIRTY = true; else showPart(pw, part);
     const typing = document.activeElement && document.activeElement.dataset && document.activeElement.dataset.a === "time";
     const board = document.getElementById("board");
     board.classList.toggle("p2v", EDIT_PART === 2);
@@ -529,9 +533,29 @@ function renderAll(){
     optRotate.checked = o.rotate; optRotateSec.value = o.rotateSec; autoSync.checked = STATE.autoSync;
   } else {
     const part = LOCAL_PART || STATE.air;
-    const ow = document.getElementById("overlayWrap"); ow.innerHTML = stageHTML(part, part !== lastPart); lastPart = part; fit(ow);
+    const ow = document.getElementById("overlayWrap"); if (TRANSITIONING) DIRTY = true; else showPart(ow, part);
     oz1.setAttribute("aria-pressed", part === 1); oz2.setAttribute("aria-pressed", part === 2);
   }
+}
+const REDUCED = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+let TRANSITIONING = false, DIRTY = false;
+function showPart(wrap, part){
+  const old = wrap.querySelector(".stage");
+  if (!old || lastPart === null || part === lastPart || REDUCED || !old.animate) {
+    wrap.innerHTML = stageHTML(part, lastPart === null); lastPart = part; fit(wrap); return;
+  }
+  const dir = part > lastPart ? -1 : 1;          // Part 2 comes in from the right, Part 1 from the left
+  TRANSITIONING = true; lastPart = part;
+  const tmp = document.createElement("div"); tmp.innerHTML = stageHTML(part, false);
+  const fresh = tmp.firstElementChild; fresh.style.transform = old.style.transform;
+  fresh.classList.add("sliding"); old.classList.add("sliding");
+  wrap.appendChild(fresh);
+  const w = wrap.clientWidth, opts = { duration: 750, easing: "cubic-bezier(.65,0,.35,1)", fill: "both" };
+  old.animate([{ translate: "0 0" }, { translate: `${dir * w}px 0` }], opts);
+  fresh.animate([{ translate: `${-dir * w}px 0` }, { translate: "0 0" }], opts).onfinish = () => {
+    old.remove(); fresh.classList.remove("sliding"); fresh.getAnimations().forEach(x => x.cancel());
+    TRANSITIONING = false; if (DIRTY) { DIRTY = false; renderAll(); }
+  };
 }
 function setRotate(){ clearInterval(rotTimer); if (STATE.opts.rotate) rotTimer = setInterval(() => { STATE.air = STATE.air === 1 ? 2 : 1; save(); }, Math.max(5, STATE.opts.rotateSec) * 1000); }
 function setAutoSync(on){ clearInterval(syncTimer); syncTimer = on ? setInterval(() => syncSheet(true), 45000) : null; }
