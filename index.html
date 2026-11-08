@@ -114,6 +114,19 @@ body.overlay .stage-wrap{width:100vw;height:100vh}
 /* Part-to-part slide */
 .stage.sliding{will-change:translate}
 
+
+/* Part 2 corner: teams qualified for the Major */
+.qbox{position:absolute;right:110px;bottom:104px;width:480px}
+.qbox h3{margin:0 0 8px;display:flex;align-items:baseline;justify-content:space-between;font-weight:900;font-style:italic;font-size:18px;text-transform:uppercase;color:var(--ember);text-shadow:0 2px 4px rgba(0,0,0,.7)}
+.qbox h3 span{font-weight:700;font-size:14px;color:#fff;opacity:.8}
+.qbox .grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.qbox .q{height:38px;display:flex;align-items:center;gap:8px;padding-right:10px;background:var(--box);color:var(--text);box-shadow:inset 5px 0 0 var(--orange),0 4px 12px rgba(0,0,0,.35)}
+.qbox .q .logo{width:28px;height:28px;margin-left:12px;display:flex;align-items:center;justify-content:center;background:#141414;border-radius:3px}
+.qbox .q .logo img{width:22px;height:22px;object-fit:contain}
+.qbox .q b{font-weight:800;font-style:italic;font-size:15px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qbox .q.open{background:var(--box-dim);box-shadow:none}
+.qbox .q.open b{font-weight:600;font-size:13px;text-transform:none;color:#4A423E;padding-left:14px}
+
 /* Button strip below the 1080 line: visible in OBS Interact, cropped off stream */
 .offzone{position:absolute;left:0;right:0;display:none;align-items:center;gap:12px;padding:0 20px;background:#120806;border-top:2px solid var(--orange);font-family:'Montserrat',sans-serif}
 body.overlay.has-room .offzone{display:flex}
@@ -479,6 +492,16 @@ function stageHTML(part, enter){
     paths.push(`<path class="${R[src].winner ? "hot" : ""}" d="M${x1},${y1} H${mx} V${y2} H${x2}"/>`);
   });
   h += `<svg class="lines" width="1920" height="1080" aria-hidden="true">${paths.join("")}</svg>`;
+  if (part === 2) {
+    const slots = ["R3_UB1","R3_UB2","R5_LB1","R5_LB2"].map(id => {
+      const w = R[id].winner;
+      if (!w) return `<div class="q open"><b>${esc(matchName(id))} winner</b></div>`;
+      const t = TEAMS[w] || {}, img = t.logo && LOGOS[t.logo] ? `<img src="${LOGOS[t.logo]}" alt="">` : "";
+      return `<div class="q"><span class="logo">${img}</span><b>${esc(w)}</b></div>`;
+    });
+    const n = ["R3_UB1","R3_UB2","R5_LB1","R5_LB2"].filter(id => R[id].winner).length;
+    h += `<div class="qbox"><h3>Qualified for the Major<span>${n} / 4</span></h3><div class="grid">${slots.join("")}</div></div>`;
+  }
   for (const id of Object.keys(pos)) {
     const p = pos[id], st = STATE.matches[id], r = R[id];
     const major = PARTS[part].cols[p.c].major, live = st.live && !r.winner;
