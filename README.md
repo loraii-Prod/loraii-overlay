@@ -51,7 +51,7 @@ Test match popup, Replay last and Check sheet now (via Interact). Refreshing doe
 ## Waiting screen: up next + latest results
 
 `…/#waiting` sits under "We'll be right back" on the intermission scene: the live or next match centred, and a results splash
-from the right that cycles newest to oldest (7 s each); a new result cuts in as "Just in". Checks the sheet every 20 s.
+from the right with the latest result; it only changes when a new result comes in ("Just in").
 Source 1920×1160, crop bottom 80 (Check sheet now button via Interact).
 
 ## Casters view: next match + countdown

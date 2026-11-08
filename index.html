@@ -1102,8 +1102,8 @@ function splashList(list, firstRun){
   SPL.list = list;
   if (fresh) { SPL.justIn = fresh; SPL.seen.push(fresh); }
   try { localStorage.setItem(seenKey, JSON.stringify(SPL.seen)); } catch(e) {}
-  if (fresh) { clearTimeout(SPL.timer); splashStep(true); }
-  else if (!SPL.timer && !SPL.busy && list.length) splashStep(false);
+  if (fresh) splashStep(true);
+  else if (list.length && (!SPL.busy || !list.includes(SPL.shownId))) splashStep(false);
 }
 function splashHTML(id, label, old){
   const R = resolve(), st = STATE.matches[id], r = R[id], w1 = r.winner === r.t1;
@@ -1111,28 +1111,20 @@ function splashHTML(id, label, old){
   const wn = nextFrom(id, "w"), ln = nextFrom(id, "l");
   const note = QUALIFIERS.has(id) ? `${esc(r.winner)} qualify for the OverDrive Major` : (ln ? `${esc(r.loser)} drop to the lower bracket` : `${esc(r.loser)} are eliminated`);
   const pos = SPL.list.indexOf(id) + 1;
-  return `<div class="in-wrap"><div class="top"><span class="lbl${old ? " old" : ""}">${label}</span><span class="rd">${esc(matchName(id))}</span><span class="count">${pos} / ${SPL.list.length}</span></div>
+  return `<div class="in-wrap"><div class="top"><span class="lbl${old ? " old" : ""}">${label}</span><span class="rd">${esc(matchName(id))}</span></div>
     <div class="res">${t(r.t1)}<span class="a${w1 ? "" : " dim"}">${esc(r.t1)}</span><span class="sc">${esc(st.s1)}–${esc(st.s2)}</span><span class="b${w1 ? " dim" : ""}">${esc(r.t2)}</span>${t(r.t2)}</div>
     <div class="note">${note}</div></div>`;
 }
 function splashStep(interrupt){
+  // Waiting screen: no cycling. Show the latest result and keep it up; only a new result replaces it.
   const el = document.getElementById("splash"); if (!el || !SPL.list.length) return;
-  clearTimeout(SPL.timer); SPL.timer = null; SPL.busy = true;
-  const showNext = () => {
-    let id, label, old;
-    if (SPL.justIn && SPL.list.includes(SPL.justIn)) { id = SPL.justIn; SPL.justIn = null; SPL.i = 0; label = "Just in"; old = false; }
-    else { SPL.i = (SPL.i + 1) % SPL.list.length; id = SPL.list[SPL.i]; old = SPL.i > 0; label = old ? "Earlier result" : "Latest result"; }
-    el.innerHTML = splashHTML(id, label, old);
-    el.classList.remove("hide"); void el.offsetWidth; el.classList.add("show");
-    SPL.timer = setTimeout(() => {
-      el.classList.remove("show"); void el.offsetWidth; el.classList.add("hide");
-      SPL.timer = setTimeout(() => { SPL.timer = null; showNext(); }, 900);
-    }, SPL.list.length === 1 && !SPL.justIn ? 3600000 : SPL_HOLD);
-  };
-  if (el.classList.contains("show")) {
-    el.classList.remove("show"); void el.offsetWidth; el.classList.add("hide");
-    SPL.timer = setTimeout(showNext, 550);
-  } else showNext();
+  clearTimeout(SPL.timer); SPL.timer = null;
+  const id = SPL.justIn && SPL.list.includes(SPL.justIn) ? SPL.justIn : SPL.list[0];
+  const label = SPL.justIn ? "Just in" : "Latest result";
+  SPL.justIn = null; SPL.i = 0; SPL.shownId = id; SPL.busy = true;
+  const show = () => { el.innerHTML = splashHTML(id, label, false); el.classList.remove("hide"); void el.offsetWidth; el.classList.add("show"); };
+  if (el.classList.contains("show")) { el.classList.remove("show"); void el.offsetWidth; el.classList.add("hide"); SPL.timer = setTimeout(show, 550); }
+  else show();
 }
 
 async function wsCheck(){
