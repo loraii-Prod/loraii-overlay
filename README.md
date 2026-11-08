@@ -4,7 +4,7 @@ A 1920×1080 transparent bracket overlay for OBS with a controller, in a single 
 This branch only holds the bracket. It shares no files with the loraii overlays on `main`.
 
 - **Part 1:** upper bracket (Round 1, quarter-finals, upper qualifiers)
-- **Part 2:** lower bracket (lower rounds 2–4, lower qualifiers), plus a "Qualified for the Major" corner with all four qualified teams
+- **Part 2:** lower bracket (lower rounds 2–4, lower qualifiers), plus a numbered "Qualified" column on the right with all four qualified teams
 
 ## Addresses
 

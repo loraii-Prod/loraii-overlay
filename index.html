@@ -262,6 +262,87 @@ body.control{background:#120806;min-height:100vh;font-family:'Montserrat',sans-s
 details.help{color:var(--steel);font-size:14px;margin:6px 0 14px;max-width:80ch;line-height:1.55}
 details.help summary{cursor:pointer;color:var(--ink);font-weight:600}
 details.help code{background:#2A1812;padding:1px 6px;color:var(--ink)}
+
+/* ================= Dark slim style (v4) ================= */
+:root{--box:#211A18;--box-dim:#211A18;--text:#FFFFFF;--muted:#8E8580;--dim:#7C7470;--hot:#FF4A1C}
+.stage .hdr{top:150px;left:60px}
+.stage.p2 .hdr{top:200px}
+.stage .hdr .kicker{display:none}
+.stage .hdr h1{font-family:'Montserrat',sans-serif;font-weight:800;font-style:italic;font-size:22px;letter-spacing:.5px;color:var(--hot);text-shadow:none;margin:0}
+.stage .hdr h1 em{color:var(--hot)}
+.stage .brand{display:none}
+.stage .foot{display:none}
+.stage .dash{position:absolute;left:84px;bottom:110px;width:34px;height:6px;border-radius:3px;background:var(--hot)}
+.stage.hide-title .hdr,.stage.hide-title .dash{display:none}
+.stage .col{display:none}
+.stage svg.lines{display:none}
+.match{gap:0;filter:none}
+.match .row:last-child{clip-path:polygon(0 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%)}
+.row{height:34px;background:var(--box);color:#fff;box-shadow:none}
+.row + .row{border-top:1px solid rgba(255,255,255,.07)}
+.row .seed{display:none}
+.row .logo{width:24px;height:24px;margin-left:10px;background:none;border-radius:0}
+.row .logo img{width:22px;height:22px}
+.row .name{padding:0 10px 0 9px;font-size:17px;font-weight:800;color:#fff}
+.row .score{width:40px;background:none;color:var(--dim);font-size:18px;font-weight:900}
+.row.win::before{display:none}
+.row.win .score{background:none;color:var(--hot)}
+.row.lose{background:var(--box)}
+.row.lose .name{color:var(--dim);text-decoration:none}
+.row.lose .logo{opacity:.55}
+.row.lose .score{background:none;color:var(--dim)}
+.row.tbd,.row.bye{background:var(--box)}
+.row.tbd .name,.row.bye .name{padding-left:43px;font-size:15px;font-weight:600;font-style:normal;color:var(--dim)}
+.row.bye .score{color:var(--dim)}
+.match.major .row,.match.major .row.tbd{background:var(--box)}
+.qual{display:none}
+.live{left:auto;right:0;top:-22px;margin:0;height:auto;padding:0;background:none;clip-path:none;color:var(--hot);font-size:13px;font-weight:800;box-shadow:none}
+.live::before{background:var(--hot)}
+.match.is-live .row{outline:none}
+.mtime{right:auto;left:0;top:-22px;font-size:13px;color:var(--muted);opacity:1;text-shadow:none}
+.stage.bg{background:#0F0B0A}
+
+/* Qualified column (Part 2) */
+.qcol{position:absolute;width:300px}
+.qcol .qt{margin:0 0 30px;text-transform:uppercase;font-weight:800;font-style:italic;font-size:17px;color:var(--hot)}
+.qcol .qi{height:60px;margin-bottom:7px;display:flex;align-items:center;gap:14px;padding:0 14px;background:var(--box)}
+.qcol .qi .n{width:16px;font-weight:900;font-style:italic;font-size:22px;color:var(--hot)}
+.qcol .qi img{width:40px;height:40px;object-fit:contain}
+.qcol .qi b{font-weight:900;font-style:italic;font-size:22px;text-transform:uppercase;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qcol .qi.open b{font-weight:600;font-style:normal;font-size:15px;text-transform:none;color:var(--dim)}
+.qbox{display:none}
+
+/* Gameplay popup in the same style */
+.gp{filter:none}
+.gp .tag{background:var(--box);clip-path:none;margin-right:3px;width:150px}
+.gp .tag small{color:var(--muted)}
+.gp .tag b{color:var(--hot)}
+.gp .rows{padding-left:0;gap:0}
+.gp .r,.ws .r{height:42px;background:var(--box);color:#fff}
+.gp .r + .r{border-top:1px solid rgba(255,255,255,.07)}
+.gp .r .logo,.ws .r .logo{background:none}
+.gp .r .score,.ws .r .score{background:none;color:var(--dim)}
+.gp .r.up .score,.ws .r.up .score{background:none;color:var(--hot)}
+.gp .r.up,.ws .r.up{box-shadow:none}
+.gp .r.down,.ws .r.down{background:var(--box)}
+.gp .r.down .name,.ws .r.down .name{color:var(--dim)}
+.gp .body{position:relative}
+.gp .line{clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%)}
+.gp .ctx{position:absolute;left:0;top:-26px;white-space:nowrap}
+.gp .ctx{margin:0 0 6px 0;color:var(--hot);text-shadow:none}
+.gp .line{margin:0;border-top:1px solid rgba(255,255,255,.07);background:var(--box);color:var(--muted);font-size:16px}
+.gp .line em{color:var(--hot)}
+
+/* Waiting screen */
+.ws2 .lbl,.splash .lbl{background:none;clip-path:none;padding:0;color:var(--hot);font-size:17px}
+.ws2 .lbl.on-air{background:none;color:var(--hot)}
+.ws2 .lbl.on-air::before{content:"● ";}
+.splash{background:var(--box);box-shadow:none;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,0 0);border-left:4px solid var(--hot)}
+.splash::before{display:none}
+.splash .lbl.old{background:none;color:var(--muted)}
+.splash .note{color:var(--muted)}
+.splash .res .sc{color:var(--hot)}
+
 </style>
 </head>
 <body>
@@ -361,19 +442,19 @@ const matchName = id => `${ROUND_NAMES[id.slice(0,5)]} ${id.slice(5)}`.replace(/
 const PARTS = {
   1: { title:"Upper bracket", sub:"Upper bracket",
        cols:[
-         { name:"Round 1",          x:110,  w:440, ids:["R1_UB1","R1_UB2","R1_UB3","R1_UB4","R1_UB5","R1_UB6","R1_UB7","R1_UB8"] },
-         { name:"Quarter-finals",   x:700,  w:440, ids:["R2_UB1","R2_UB2","R2_UB3","R2_UB4"] },
-         { name:"Upper qualifiers",  x:1330, w:440, ids:["R3_UB1","R3_UB2"], major:true }
-       ], finish:1211, top:262, step:92 },
+         { name:"Round 1",          x:60,   w:360, ids:["R1_UB1","R1_UB2","R1_UB3","R1_UB4","R1_UB5","R1_UB6","R1_UB7","R1_UB8"] },
+         { name:"Quarter-finals",   x:470,  w:360, ids:["R2_UB1","R2_UB2","R2_UB3","R2_UB4"] },
+         { name:"Upper qualifiers",  x:880,  w:360, ids:["R3_UB1","R3_UB2"], major:true }
+       ], finish:1211, top:230, step:100 },
   2: { title:"Lower bracket", sub:"Lower bracket",
        cols:[
-         { name:"Lower round 2",    x:110,  w:360, ids:["R2_LB1","R2_LB2","R2_LB3","R2_LB4"] },
-         { name:"Lower round 3",    x:540,  w:360, ids:["R3_LB1","R3_LB2","R3_LB3","R3_LB4"] },
-         { name:"Lower round 4",    x:970,  w:360, ids:["R4_LB1","R4_LB2"] },
-         { name:"Lower qualifiers",  x:1440, w:370, ids:["R5_LB1","R5_LB2"], major:true }
-       ], finish:1366, top:300, step:178 }
+         { name:"Lower round 2",    x:60,   w:320, ids:["R2_LB1","R2_LB2","R2_LB3","R2_LB4"] },
+         { name:"Lower round 3",    x:430,  w:320, ids:["R3_LB1","R3_LB2","R3_LB3","R3_LB4"] },
+         { name:"Lower round 4",    x:800,  w:320, ids:["R4_LB1","R4_LB2"] },
+         { name:"Lower qualifiers",  x:1170, w:320, ids:["R5_LB1","R5_LB2"], major:true }
+       ], finish:1366, top:300, step:190 }
 };
-const MATCH_H = 84;
+const MATCH_H = 69;
 function layout(part){
   const P = PARTS[part], pos = {};
   const first = P.cols[0];
@@ -421,7 +502,8 @@ function resolve(){
       if (typeof s === "string") return "";
       const src = get(s.w || s.l), verb = s.w ? "Winner" : "Loser";
       const real = n => n && n !== "BYE";
-      return real(src.t1) && real(src.t2) ? `${verb}: ${src.t1} / ${src.t2}` : `${verb}: ${matchName(s.w || s.l)}`;
+      const code = (s.w || s.l).replace(/^R(\d)_(UB|LB)(\d)$/, "R$1 $2 $3");
+      return `${verb} ${code}`;
     });
     const st = STATE.matches[id];
     let winner = null, loser = null;
@@ -469,10 +551,7 @@ function colTime(ids){ const t = new Set(ids.map(id => STATE.matches[id].time));
 
 function stageHTML(part, enter){
   const P = PARTS[part], R = resolve(), pos = layout(part), o = STATE.opts;
-  const word = part === 1 ? "Upper" : "Lower";
-  let h = `<div class="hdr"><div class="kicker">OverDrive Wildcard 2026</div><h1>Bracket - <em>${word}</em></h1></div>
-    <div class="brand">${OD_LOGO ? `<img src="${OD_LOGO}" alt="">` : ""}<b>OverDrive</b></div>
-    <div class="foot">${CHEV}<span>Top 4 qualify for the Major<i>Part ${part}/2</i></span></div>`;
+  let h = `<div class="hdr"><h1>${part === 1 ? "Upper bracket" : "Lower bracket"}</h1></div><div class="dash"></div>`;
   const firstY = pos[P.cols[0].ids[0]].y, lastY = Math.max(...Object.values(pos).map(p => p.y)) + MATCH_H;
   for (const col of P.cols) {
     const t = colTime(col.ids);
@@ -493,14 +572,14 @@ function stageHTML(part, enter){
   });
   h += `<svg class="lines" width="1920" height="1080" aria-hidden="true">${paths.join("")}</svg>`;
   if (part === 2) {
-    const slots = ["R3_UB1","R3_UB2","R5_LB1","R5_LB2"].map(id => {
+    const qx = 1560, qy = 260;
+    const qs = ["R3_UB1","R3_UB2","R5_LB1","R5_LB2"].map((id, i) => {
       const w = R[id].winner;
-      if (!w) return `<div class="q open"><b>${esc(matchName(id))} winner</b></div>`;
+      if (!w) return `<div class="qi open"><span class="n">${i+1}</span><b>${i < 2 ? "Upper" : "Lower"} qualifier · TBD</b></div>`;
       const t = TEAMS[w] || {}, img = t.logo && LOGOS[t.logo] ? `<img src="${LOGOS[t.logo]}" alt="">` : "";
-      return `<div class="q"><span class="logo">${img}</span><b>${esc(w)}</b></div>`;
+      return `<div class="qi"><span class="n">${i+1}</span>${img}<b>${esc(w)}</b></div>`;
     });
-    const n = ["R3_UB1","R3_UB2","R5_LB1","R5_LB2"].filter(id => R[id].winner).length;
-    h += `<div class="qbox"><h3>Qualified for the Major<span>${n} / 4</span></h3><div class="grid">${slots.join("")}</div></div>`;
+    h += `<div class="qcol" style="left:${qx}px;top:${qy}px"><div class="qt">Qualified</div>${qs.join("")}</div>`;
   }
   for (const id of Object.keys(pos)) {
     const p = pos[id], st = STATE.matches[id], r = R[id];
@@ -511,7 +590,7 @@ function stageHTML(part, enter){
       ${rowHTML(r.t1, st.s1, r, r.hints[0], p.c, 0)}${rowHTML(r.t2, st.s2, r, r.hints[1], p.c, 1)}</div>`;
   }
   return `<div class="stage p${part}${o.bg ? " bg" : ""}${enter ? " enter" : ""}${o.title ? "" : " hide-title"}${o.times ? "" : " hide-times"}${o.seeds ? "" : " hide-seeds"}"
-    style="--box:rgba(244,242,239,${o.opacity/100});--box-dim:rgba(244,242,239,${o.opacity/100*0.66})">${h}</div>`;
+    style="--box:rgba(33,26,24,${o.opacity/100});--box-dim:rgba(33,26,24,${o.opacity/100})">${h}</div>`;
 }
 
 function fit(wrap){
