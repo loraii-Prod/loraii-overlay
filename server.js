@@ -31,6 +31,7 @@ function applyPatch(p) {
   if (p.air === 1 || p.air === 2) { state.air = p.air; lastRotate = Date.now(); }
   if ("cast" in p) state.cast = p.cast && /^R\d_(UB|LB)\d$/.test(p.cast) ? p.cast : null;
   if ("autoSync" in p) state.autoSync = !!p.autoSync;
+  if (typeof p.wsTitle === "string") state.wsTitle = p.wsTitle.slice(0, 40);
   if ("wsTimer" in p) state.wsTimer = typeof p.wsTimer === "number" && p.wsTimer > 0 ? p.wsTimer : null;
   bump();
 }

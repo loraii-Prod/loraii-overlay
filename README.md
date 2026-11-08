@@ -54,6 +54,12 @@ Test match popup, Replay last and Check sheet now (via Interact). Refreshing doe
 from the right with the latest result; it only changes when a new result comes in ("Just in").
 Source 1920×1480, crop bottom 400 (Check sheet now button via Interact).
 
+## Waiting screen on the Start/BRB/End loop
+
+`#waiting` is laid out for the "Blank Loop StartBRBEnd" video: put the video (Media Source, loop) under the
+waiting-screen browser source. Top panel = title (Starting soon / Be right back / Thanks for watching / none,
+picked in the strip), middle panel = up next + countdown, bottom bar = latest result.
+
 ## Waiting screen countdown
 
 In the strip below the picture (Interact): **Countdown** buttons (1, 2, 3, 5, 10, 15, 20, 30 min), **Adjust**

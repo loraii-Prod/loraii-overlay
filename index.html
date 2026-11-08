@@ -467,6 +467,39 @@ body.waiting:not(.casters) .gp-off .tctl{display:flex}
 .gp-off select.castpick{padding:18px 16px;font-size:22px}
 .gp-off span#gpStatus{flex-basis:auto;margin-left:auto;font-size:18px}
 
+
+/* ===== Waiting screen fitted to the Start/BRB/End loop video ===== */
+body.waiting:not(.casters) .wv-title{position:absolute;left:210px;top:280px;width:1500px;height:200px;display:flex;align-items:center;justify-content:center;
+  font-family:'Anton',sans-serif;font-size:128px;line-height:1;letter-spacing:2px;text-transform:uppercase;color:#fff}
+body.waiting:not(.casters) .wv-title:empty{display:none}
+body.waiting:not(.casters) .ws2.next{left:210px;right:auto;top:500px;width:1500px;height:300px;padding:0 70px;text-align:left;
+  display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto auto;column-gap:60px;align-content:center}
+body.waiting:not(.casters) .ws2.next .lbl{grid-column:1;margin:0 0 18px;font-size:22px;justify-self:start}
+body.waiting:not(.casters) .ws2.next .line{grid-column:1;justify-content:flex-start;gap:20px;font-size:52px}
+body.waiting:not(.casters) .ws2.next .line img{width:56px;height:56px}
+body.waiting:not(.casters) .ws2.next .vs{font-size:26px}
+body.waiting:not(.casters) .ws2.next .sub{grid-column:1;margin-top:18px;font-size:20px}
+body.waiting:not(.casters) .ws2.next .cdwrap{grid-column:2;grid-row:1 / span 3;align-self:center;margin:0;padding:0 0 0 60px;background:none;clip-path:none;
+  border-left:3px solid rgba(255,255,255,.12);display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+body.waiting:not(.casters) .ws2.next .cdl{font-size:22px}
+body.waiting:not(.casters) .ws2.next .cd{font-size:130px}
+body.waiting:not(.casters) .ws2.next .cd.soon{font-size:48px}
+body.waiting:not(.casters) .splash{left:600px;right:60px;bottom:0;top:auto;width:auto;height:115px;padding:0 0 0 30px;background:none;border:0;clip-path:none;
+  display:flex;align-items:center;justify-content:flex-end}
+body.waiting:not(.casters) .splash .in-wrap{display:flex;align-items:center;justify-content:flex-end;gap:26px;width:auto}
+body.waiting:not(.casters) .splash .top{margin:0;gap:12px}
+body.waiting:not(.casters) .splash .lbl{font-size:20px}
+body.waiting:not(.casters) .splash .rd{font-size:16px}
+body.waiting:not(.casters) .splash .res{display:flex;gap:14px;font-size:30px}
+body.waiting:not(.casters) .splash .res img{width:34px;height:34px}
+body.waiting:not(.casters) .splash .res .sc{font-size:40px}
+body.waiting:not(.casters) .splash .note{display:none}
+@keyframes splin{from{translate:0 120%}to{translate:0 0}}
+@keyframes splout{from{translate:0 0}to{translate:0 120%}}
+.gp-off .ttl{display:none;align-items:center;gap:12px}
+body.waiting:not(.casters) .gp-off .ttl{display:flex}
+.gp-off .ttl button.on{outline:3px solid #fff;outline-offset:-3px;background:linear-gradient(135deg,var(--orange),var(--red))}
+
 </style>
 </head>
 <body>
@@ -532,6 +565,8 @@ body.waiting:not(.casters) .gp-off .tctl{display:flex}
     <button data-tnudge="-5">−5 min</button><button data-tnudge="-1">−1 min</button><button data-tnudge="1">+1 min</button><button data-tnudge="5">+5 min</button>
     <button data-tset="0" class="tmatch">Match time</button>
     <span class="tread" id="wsTimerRead"></span></div>
+    <div class="trow ttl"><span class="tlbl">Title</span>
+    <button data-title="Starting soon">Starting soon</button><button data-title="Be right back">Be right back</button><button data-title="Thanks for watching">Thanks for watching</button><button data-title="">No title</button></div>
   </div>
   <select class="castpick" aria-label="Cast match"></select>
   <span id="gpStatus">Waiting for the sheet…</span>
@@ -621,7 +656,7 @@ function load(){
     if (s && s.matches) {
       const b = blankState(); Object.assign(b.opts, s.opts||{});
       for (const k in b.matches) Object.assign(b.matches[k], s.matches[k]||{});
-      b.rev = s.rev||0; b.autoSync = !!s.autoSync; b.air = s.air === 2 ? 2 : 1; b.cast = s.cast || null; b.wsTimer = typeof s.wsTimer === "number" ? s.wsTimer : null; return b;
+      b.rev = s.rev||0; b.autoSync = !!s.autoSync; b.air = s.air === 2 ? 2 : 1; b.cast = s.cast || null; b.wsTimer = typeof s.wsTimer === "number" ? s.wsTimer : null; if (typeof s.wsTitle === "string") b.wsTitle = s.wsTitle; return b;
     }
   } catch(e) {}
   const b = blankState(); b.matches.R1_UB1.s1 = "W"; return b;
@@ -657,6 +692,7 @@ function diffPatch(full){
   if (full || (STATE.cast || null) !== (base.cast || null)) p.cast = STATE.cast || null;
   if (full || STATE.autoSync !== base.autoSync) p.autoSync = STATE.autoSync;
   if (full || (STATE.wsTimer || null) !== (base.wsTimer || null)) p.wsTimer = STATE.wsTimer || null;
+  if (typeof STATE.wsTitle === "string" && (full || STATE.wsTitle !== base.wsTitle)) p.wsTitle = STATE.wsTitle;
   return p;
 }
 async function pushNow(full){
@@ -1133,7 +1169,9 @@ function wsRender(){
         return `<div class="cdwrap${countdownText(at) === "Starting soon" ? " is-soon" : ""}"><span class="cdl">Starts in</span><span class="cd" data-at="${at.toISOString()}">${countdownText(at)}</span></div>`; })()}`;
   }
   const stage = document.getElementById("gpStage");
-  if (!stage.querySelector(".ws2")) stage.innerHTML = `<div class="ws2 next"></div><div class="splash" id="splash"></div>`;
+  if (!stage.querySelector(".ws2")) stage.innerHTML = `<div class="wv-title" id="wvTitle"></div><div class="ws2 next"></div><div class="splash" id="splash"></div>`;
+  const tt = document.getElementById("wvTitle"); const want = STATE.wsTitle === undefined ? "Starting soon" : STATE.wsTitle; if (tt.textContent !== want) tt.textContent = want;
+  document.querySelectorAll("[data-title]").forEach(b => b.classList.toggle("on", b.dataset.title === want));
   const n = stage.querySelector(".ws2");
   const put = (el, html, key) => { if (wsShown[key] === html) return; el.innerHTML = html; el.classList.remove("in"); void el.offsetWidth; if (wsShown[key] !== undefined) el.classList.add("in"); wsShown[key] = html; };
   put(n, nextHTML, "next");
@@ -1196,6 +1234,7 @@ function syncTimerPick(){
 }
 function initWaiting(){
   watchStore(() => { wsRender(); syncTimerPick(); });
+  document.querySelectorAll("[data-title]").forEach(btn => btn.onclick = () => { STATE.wsTitle = btn.dataset.title; save(); wsRender(); });
   document.querySelectorAll("[data-tset]").forEach(btn => btn.onclick = () => { const m = +btn.dataset.tset; setWsTimer(m ? Date.now() + m * 60000 : null); });
   document.querySelectorAll("[data-tnudge]").forEach(btn => btn.onclick = () => {
     const nx = nextMatchId(), ms = nx && matchStart(nx) ? matchStart(nx).getTime() : Date.now();
