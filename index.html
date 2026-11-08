@@ -265,7 +265,7 @@ details.help code{background:#2A1812;padding:1px 6px;color:var(--ink)}
 
 /* ================= Dark slim style (v4) ================= */
 :root{--box:#211A18;--box-dim:#211A18;--text:#FFFFFF;--muted:#8E8580;--dim:#7C7470;--hot:#FF4A1C}
-.stage .hdr{top:150px;left:60px}
+.stage .hdr{top:180px;left:60px}
 .stage.p2 .hdr{top:200px}
 .stage .hdr .kicker{display:none}
 .stage .hdr h1{font-family:'Montserrat',sans-serif;font-weight:800;font-style:italic;font-size:22px;letter-spacing:.5px;color:var(--hot);text-shadow:none;margin:0}
@@ -620,10 +620,10 @@ const matchName = id => `${ROUND_NAMES[id.slice(0,5)]} ${id.slice(5)}`.replace(/
 const PARTS = {
   1: { title:"Upper bracket", sub:"Upper bracket",
        cols:[
-         { name:"Round 1",          x:60,   w:360, ids:["R1_UB1","R1_UB2","R1_UB3","R1_UB4","R1_UB5","R1_UB6","R1_UB7","R1_UB8"] },
-         { name:"Quarter-finals",   x:470,  w:360, ids:["R2_UB1","R2_UB2","R2_UB3","R2_UB4"] },
-         { name:"Upper qualifiers",  x:880,  w:360, ids:["R3_UB1","R3_UB2"], major:true }
-       ], finish:1211, top:230, step:100 },
+         { name:"Round 1",          x:60,   w:400, ids:["R1_UB1","R1_UB2","R1_UB3","R1_UB4","R1_UB5","R1_UB6","R1_UB7","R1_UB8"] },
+         { name:"Quarter-finals",   x:560,  w:400, ids:["R2_UB1","R2_UB2","R2_UB3","R2_UB4"] },
+         { name:"Upper qualifiers",  x:1060, w:400, ids:["R3_UB1","R3_UB2"], major:true }
+       ], finish:1211, top:250, step:88 },
   2: { title:"Lower bracket", sub:"Lower bracket",
        cols:[
          { name:"Lower round 2",    x:60,   w:320, ids:["R2_LB1","R2_LB2","R2_LB3","R2_LB4"] },
@@ -796,8 +796,8 @@ function stageHTML(part, enter){
     paths.push(`<path class="${R[src].winner ? "hot" : ""}" d="M${x1},${y1} H${mx} V${y2} H${x2}"/>`);
   });
   h += `<svg class="lines" width="1920" height="1080" aria-hidden="true">${paths.join("")}</svg>`;
-  if (part === 2) {
-    const qx = 1600, qy = 300;
+  {
+    const qx = 1600, qy = part === 2 ? 300 : 250;
     const qs = ["R3_UB1","R3_UB2","R5_LB1","R5_LB2"].map((id, i) => {
       const w = R[id].winner;
       if (!w) return `<div class="qi open"><span class="n">${i+1}</span><b>${i < 2 ? "Upper" : "Lower"} qualifier · TBD</b></div>`;
