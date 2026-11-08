@@ -442,10 +442,30 @@ body.waiting:not(.casters) .gp-off .ws-only{display:inline-flex}
 .offzone,.gp-off{flex-wrap:wrap;align-content:center;align-items:center;gap:20px 22px;padding:30px 48px;border-top:4px solid var(--orange)}
 .offzone button,.gp-off button{padding:24px 40px;font-size:28px;min-width:180px;text-align:center;border-width:2px}
 .offzone button[aria-pressed=true]{outline:3px solid #fff;outline-offset:-3px}
-.offzone select.castpick,.gp-off select.castpick,#wsTimerPick{font-size:24px;padding:22px 18px;max-width:none;min-width:420px;border-width:2px}
+.offzone select.castpick,.gp-off select.castpick{font-size:24px;padding:22px 18px;max-width:none;min-width:420px;border-width:2px}
 .gp-off .ws-only{gap:22px}
 .offzone span,.gp-off span#gpStatus{flex-basis:100%;margin-left:0;font-size:20px;text-align:left}
 .offzone span.zhint,.gp-off span.zhint{flex-basis:100%;font-size:18px;color:#8E8580;order:99}
+
+
+.gp-off .tctl{flex-basis:100%;flex-wrap:wrap;order:-1}
+.gp-off .tctl button{min-width:0;padding:22px 26px;font-size:26px}
+.gp-off .tctl .tmatch{margin-left:6px}
+.gp-off .tctl .tlbl{flex-basis:auto;margin-right:6px;font:900 italic 22px Montserrat,sans-serif;text-transform:uppercase;color:var(--hot)}
+.gp-off .tctl .tgap{width:18px}
+.gp-off .tctl .tread{flex-basis:auto;margin-left:8px;font:800 italic 22px Montserrat,sans-serif;color:#fff}
+.gp-off .tctl button.on{outline:3px solid #fff;outline-offset:-3px;background:linear-gradient(135deg,var(--orange),var(--red))}
+
+
+.gp-off{gap:14px 16px;padding:18px 40px}
+.gp-off .tctl{display:none;flex-direction:column;align-items:flex-start;gap:12px}
+body.waiting:not(.casters) .gp-off .tctl{display:flex}
+.gp-off .trow{display:flex;align-items:center;gap:12px}
+.gp-off .tctl .tlbl{width:170px}
+.gp-off .tctl button{padding:18px 22px;font-size:24px}
+.gp-off button{padding:18px 30px;font-size:24px}
+.gp-off select.castpick{padding:18px 16px;font-size:22px}
+.gp-off span#gpStatus{flex-basis:auto;margin-left:auto;font-size:18px}
 
 </style>
 </head>
@@ -504,9 +524,15 @@ body.waiting:not(.casters) .gp-off .ws-only{display:inline-flex}
   <button id="gpTestMatch" class="gp-only">Test match popup</button>
   <button id="gpReplay" class="gp-only">Replay last</button>
   <button id="gpCheckBtn">Check sheet now</button>
-  <span class="ws-only tctl"><select id="wsTimerPick" aria-label="Countdown">
-    <option value="">Countdown: match start time</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="custom" hidden>Manual</option>
-  </select><button id="wsMinus" aria-label="One minute less">−1 min</button><button id="wsPlus" aria-label="One minute more">+1 min</button></span>
+  <div class="ws-only tctl" role="group" aria-label="Countdown">
+    <div class="trow"><span class="tlbl">Countdown</span>
+    <button data-tset="1">1 min</button><button data-tset="2">2 min</button><button data-tset="3">3 min</button><button data-tset="5">5 min</button>
+    <button data-tset="10">10 min</button><button data-tset="15">15 min</button><button data-tset="20">20 min</button><button data-tset="30">30 min</button></div>
+    <div class="trow"><span class="tlbl">Adjust</span>
+    <button data-tnudge="-5">−5 min</button><button data-tnudge="-1">−1 min</button><button data-tnudge="1">+1 min</button><button data-tnudge="5">+5 min</button>
+    <button data-tset="0" class="tmatch">Match time</button>
+    <span class="tread" id="wsTimerRead"></span></div>
+  </div>
   <select class="castpick" aria-label="Cast match"></select>
   <span id="gpStatus">Waiting for the sheet…</span>
   <span class="zhint">Controls area, hidden from stream: set the source to 1920×1480 and Crop Bottom 400 in OBS.</span>
@@ -1162,17 +1188,18 @@ function watchStore(onChange){
 }
 function setWsTimer(ms){ STATE.wsTimer = ms; save(); wsRender(); syncTimerPick(); }
 function syncTimerPick(){
-  const sel = document.getElementById("wsTimerPick"); if (!sel || document.activeElement === sel) return;
-  sel.value = STATE.wsTimer ? "custom" : "";
-  const opt = sel.querySelector('option[value="custom"]');
-  opt.hidden = !STATE.wsTimer; opt.textContent = STATE.wsTimer ? "Manual: " + new Date(STATE.wsTimer).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}) : "Manual";
+  const rd = document.getElementById("wsTimerRead"); if (!rd) return;
+  rd.textContent = STATE.wsTimer ? "Manual · ends " + new Date(STATE.wsTimer).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", second:"2-digit"}) : "Following the match start time";
+  document.querySelectorAll(".tctl .tmatch").forEach(x => x.classList.toggle("on", !STATE.wsTimer));
 }
 function initWaiting(){
   watchStore(() => { wsRender(); syncTimerPick(); });
-  wsTimerPick.onchange = e => { const v = e.target.value; if (v === "custom") return; setWsTimer(v ? Date.now() + (+v) * 60000 : null); e.target.blur(); };
-  const nudge = d => { const base = STATE.wsTimer || (matchStart(nextMatchId() || "") || new Date()).getTime?.() || Date.now(); setWsTimer(Math.max(Date.now(), base) + d * 60000); };
-  wsMinus.onclick = () => { const base = STATE.wsTimer || (nextMatchId() && matchStart(nextMatchId()) ? matchStart(nextMatchId()).getTime() : Date.now()); setWsTimer(Math.max(Date.now(), base - 60000)); };
-  wsPlus.onclick = () => { const base = STATE.wsTimer || (nextMatchId() && matchStart(nextMatchId()) ? matchStart(nextMatchId()).getTime() : Date.now()); setWsTimer(Math.max(Date.now(), base) + 60000); };
+  document.querySelectorAll("[data-tset]").forEach(btn => btn.onclick = () => { const m = +btn.dataset.tset; setWsTimer(m ? Date.now() + m * 60000 : null); });
+  document.querySelectorAll("[data-tnudge]").forEach(btn => btn.onclick = () => {
+    const nx = nextMatchId(), ms = nx && matchStart(nx) ? matchStart(nx).getTime() : Date.now();
+    const base = Math.max(Date.now(), STATE.wsTimer || ms);
+    setWsTimer(Math.max(Date.now(), base + (+btn.dataset.tnudge) * 60000));
+  });
   setTimeout(syncTimerPick, 0);
   document.body.className = "waiting"; document.getElementById("gpWrap").hidden = false;
   gpFit(); window.addEventListener("resize", gpFit);

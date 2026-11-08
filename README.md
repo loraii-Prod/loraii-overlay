@@ -56,9 +56,9 @@ Source 1920×1480, crop bottom 400 (Check sheet now button via Interact).
 
 ## Waiting screen countdown
 
-In the strip below the picture (Interact): **Countdown** dropdown (match start time, 5, 10 or 15 min) and
-**−1 min** / **+1 min**. A manual countdown is shared by every synced waiting-screen source; pick
-"match start time" to go back to the sheet's time.
+In the strip below the picture (Interact): **Countdown** buttons (1, 2, 3, 5, 10, 15, 20, 30 min), **Adjust**
+(−5, −1, +1, +5 min) and **Match time**. A manual countdown is shared by every synced waiting-screen source; press
+Match time to go back to the sheet's time.
 
 ## Casters view: next match + countdown
 
