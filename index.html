@@ -694,8 +694,9 @@ function resolve(){
     if (a === "BYE" && b && b !== "BYE") { winner = b; loser = "BYE"; }
     else if (b === "BYE" && a && a !== "BYE") { winner = a; loser = "BYE"; }
     else if (a && b) {
-      if (st.s1 === "W" || (n1 >= WINS_NEEDED && !(n2 >= n1))) { winner = a; loser = b; }
-      else if (st.s2 === "W" || (n2 >= WINS_NEEDED && !(n1 >= n2))) { winner = b; loser = a; }
+      const lost = v => v === "FF" || v === "L";
+      if (st.s1 === "W" || (lost(st.s2) && !lost(st.s1)) || (n1 >= WINS_NEEDED && !(n2 >= n1))) { winner = a; loser = b; }
+      else if (st.s2 === "W" || (lost(st.s1) && !lost(st.s2)) || (n2 >= WINS_NEEDED && !(n1 >= n2))) { winner = b; loser = a; }
     }
     return out[id] = { t1:a, t2:b, hints, winner, loser };
   };
@@ -1156,10 +1157,11 @@ function splashHTML(id, label, old){
   const R = resolve(), st = STATE.matches[id], r = R[id], w1 = r.winner === r.t1;
   const t = n => { const x = TEAMS[n] || {}; return x.logo && LOGOS[x.logo] ? `<img src="${LOGOS[x.logo]}" alt="">` : "<span></span>"; };
   const wn = nextFrom(id, "w"), ln = nextFrom(id, "l");
-  const note = QUALIFIERS.has(id) ? `${esc(r.winner)} qualify for the OverDrive Major` : (ln ? `${esc(r.loser)} drop to the lower bracket` : `${esc(r.loser)} are eliminated`);
+  const ff = !/^\d+$/.test(st.s1 || "") || !/^\d+$/.test(st.s2 || "");
+  const note = (ff ? `${esc(r.winner)} win by forfeit · ` : "") + (QUALIFIERS.has(id) ? `${esc(r.winner)} qualify for the OverDrive Major` : (ln ? `${esc(r.loser)} drop to the lower bracket` : `${esc(r.loser)} are eliminated`));
   const pos = SPL.list.indexOf(id) + 1;
   return `<div class="in-wrap"><div class="top"><span class="lbl${old ? " old" : ""}">${label}</span><span class="rd">${esc(matchName(id))}</span></div>
-    <div class="res">${t(r.t1)}<span class="a${w1 ? "" : " dim"}">${esc(r.t1)}</span><span class="sc">${esc(st.s1)}–${esc(st.s2)}</span><span class="b${w1 ? " dim" : ""}">${esc(r.t2)}</span>${t(r.t2)}</div>
+    <div class="res">${t(r.t1)}<span class="a${w1 ? "" : " dim"}">${esc(r.t1)}</span><span class="sc">${/^\d+$/.test(st.s1 || "") && /^\d+$/.test(st.s2 || "") ? esc(st.s1) + "–" + esc(st.s2) : "FF"}</span><span class="b${w1 ? " dim" : ""}">${esc(r.t2)}</span>${t(r.t2)}</div>
     <div class="note">${note}</div></div>`;
 }
 function splashStep(interrupt){
