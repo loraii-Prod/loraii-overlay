@@ -500,6 +500,11 @@ body.waiting:not(.casters) .splash .note{display:none}
 body.waiting:not(.casters) .gp-off .ttl{display:flex}
 .gp-off .ttl button.on{outline:3px solid #fff;outline-offset:-3px;background:linear-gradient(135deg,var(--orange),var(--red))}
 
+
+[data-at] i{font-style:normal;display:inline-block;text-align:center}
+[data-at] i.cd-num{width:.58em}
+[data-at] i.cd-col{width:.3em}
+
 </style>
 </head>
 <body>
@@ -1123,9 +1128,16 @@ function countdownText(at){
   const t = Math.floor(ms / 1000), h = Math.floor(t / 3600), mm = Math.floor(t % 3600 / 60), ss = t % 60;
   return (h ? h + ":" + String(mm).padStart(2,"0") : String(mm).padStart(2,"0")) + ":" + String(ss).padStart(2,"0");
 }
-setInterval(() => document.querySelectorAll("[data-at]").forEach(el => {
+// fixed-width slots per character so the clock doesn't jiggle (the display font has proportional digits)
+const cdSlots = txt => /^[\d:]+$/.test(txt) ? txt.split("").map(c => `<i class="${c === ":" ? "cd-col" : "cd-num"}">${c}</i>`).join("") : esc(txt);
+function cdPaint(el){
   const txt = countdownText(el.dataset.at);
-  el.textContent = txt; el.classList.toggle("soon", txt === "Starting soon");
+  if (el.dataset.last === txt) return; el.dataset.last = txt;
+  el.innerHTML = cdSlots(txt); el.classList.toggle("soon", txt === "Starting soon");
+  return txt;
+}
+setInterval(() => document.querySelectorAll("[data-at]").forEach(el => {
+  const txt = countdownText(el.dataset.at); cdPaint(el);
   if (el.parentElement) el.parentElement.classList.toggle("is-soon", txt === "Starting soon");
 }), 1000);
 function nextMatchId(){
@@ -1144,7 +1156,9 @@ function wsTeam(name, cls){
   const t = TEAMS[name] || {}, img = t.logo && LOGOS[t.logo] ? `<img src="${LOGOS[t.logo]}" alt="">` : "";
   return { img, name: `<span class="${cls || ""}">${esc(name)}</span>` };
 }
+function paintAllCountdowns(){ document.querySelectorAll("[data-at]").forEach(el => { delete el.dataset.last; cdPaint(el); }); }
 function wsRender(){
+  setTimeout(paintAllCountdowns, 0);
   setTimeout(refreshCastPickers, 0);
   const R = resolve(), ids = Object.keys(STRUCT);
   let done = {}; try { done = JSON.parse(localStorage.getItem(WS_DONE_KEY)) || {}; } catch(e) {}
@@ -1251,6 +1265,7 @@ function initWaiting(){
 /* ---------- Casters view: next match + countdown, bottom-left ---------- */
 let csLast = "";
 function csRender(){
+  setTimeout(paintAllCountdowns, 0);
   setTimeout(refreshCastPickers, 0);
   const R = resolve(), id = nextMatchId(), el = document.getElementById("gpStage");
   let html = "";
