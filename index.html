@@ -424,6 +424,14 @@ details.help code{background:#2A1812;padding:1px 6px;color:var(--ink)}
 .qcol .qi b{font-size:16px}
 .qcol .qi.open b{font-size:13px}
 
+
+/* On cast marker + picker */
+.live.oncast{color:var(--ember)}
+.live.nolive::before{display:none}
+.live.oncast::after{content:"";display:inline-block;width:0}
+select.castpick{background:#2A1812;border:1px solid #4A2B20;color:#fff;font:700 14px Montserrat,sans-serif;padding:9px 10px;max-width:420px}
+select.castpick:focus-visible{outline:2px solid var(--ember)}
+
 </style>
 </head>
 <body>
@@ -434,6 +442,7 @@ details.help code{background:#2A1812;padding:1px 6px;color:var(--ink)}
       <button id="air1" aria-pressed="true">Part 1 on air</button>
       <button id="air2" class="p2" aria-pressed="false">Part 2 on air</button>
     </div>
+    <label class="note" style="display:flex;gap:6px;align-items:center">Cast match <select class="castpick" aria-label="Cast match"></select></label>
     <button class="btn go" id="syncBtn">Pull results from sheet</button>
   </div>
   <div class="opts">
@@ -453,6 +462,7 @@ details.help code{background:#2A1812;padding:1px 6px;color:var(--ink)}
     <button class="btn warn" id="resetBtn">Clear all scores</button>
   </div>
   <details class="help"><summary>Setting this up in OBS</summary>
+    <p><b>Synced links</b> (the overdrive-wildcard-live address with <code>key=…</code>): every source, dock and browser shows the same state and changes reach the stream within about 2 seconds.</p>
     Add this file as a <b>Browser Source</b> at 1920×1080 with “Local file” ticked. It shows whichever part is on air here, on a transparent background unless the fire backdrop is on.
     Then add it again as a <b>Custom Browser Dock</b> with <code>#control</code> on the end of the address to get this controller inside OBS.
     Both share storage, so changes reach the stream within a second.
@@ -470,6 +480,7 @@ details.help code{background:#2A1812;padding:1px 6px;color:var(--ink)}
   <button id="oz1" aria-pressed="false">Part 1</button>
   <button id="oz2" aria-pressed="false">Part 2</button>
   <button id="ozAuto" aria-pressed="false">Auto switch</button>
+  <select class="castpick" aria-label="Cast match"></select>
   <span>Below 1080 px: crop this strip off in OBS</span>
 </div>
 <div class="gp-wrap" id="gpWrap" hidden><div class="gp-stage" id="gpStage"></div></div>
@@ -478,6 +489,7 @@ details.help code{background:#2A1812;padding:1px 6px;color:var(--ink)}
   <button id="gpTestMatch" class="gp-only">Test match popup</button>
   <button id="gpReplay" class="gp-only">Replay last</button>
   <button id="gpCheckBtn">Check sheet now</button>
+  <select class="castpick" aria-label="Cast match"></select>
   <span id="gpStatus">Waiting for the sheet…</span>
 </div>
 <div class="toast" id="toast" role="status"></div>
@@ -564,13 +576,57 @@ function load(){
     if (s && s.matches) {
       const b = blankState(); Object.assign(b.opts, s.opts||{});
       for (const k in b.matches) Object.assign(b.matches[k], s.matches[k]||{});
-      b.rev = s.rev||0; b.autoSync = !!s.autoSync; b.air = s.air === 2 ? 2 : 1; return b;
+      b.rev = s.rev||0; b.autoSync = !!s.autoSync; b.air = s.air === 2 ? 2 : 1; b.cast = s.cast || null; return b;
     }
   } catch(e) {}
   const b = blankState(); b.matches.R1_UB1.s1 = "W"; return b;
 }
 let STATE = load(), lastRev = STATE.rev;
-function save(){ STATE.rev = Date.now(); lastRev = STATE.rev; try { localStorage.setItem(STORE_KEY, JSON.stringify(STATE)); } catch(e) {} renderAll(); }
+/* ---------- Live sync with the server (when this page is served by server.js) ---------- */
+const SYNC_KEY = ((location.hash + location.search).match(/key=([A-Za-z0-9_-]+)/) || [])[1] || "";
+let SYNCED = false, SERVER = null, pushTimer = null;
+function serverApply(s){
+  SERVER = s;
+  if (s.rev === 0 && SYNC_KEY) { pushNow(true); return; }          // fresh server after a restart: seed it from here
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch(e) {}
+  // the page's 1-second store watcher picks this up and re-renders
+}
+async function syncPoll(){
+  try {
+    const r = await fetch("/api/state?since=" + (SERVER ? SERVER.rev : 0), { cache: "no-store" });
+    if (r.status === 200) { const s = await r.json(); if (!SYNCED) { SYNCED = true; document.body.classList.add("synced"); } serverApply(s); }
+    else if (r.status === 204) { SYNCED = true; }
+  } catch(e) {}
+}
+function diffPatch(full){
+  const p = {}, base = full ? { matches:{}, opts:{} } : (SERVER || { matches:{}, opts:{} });
+  const ms = {};
+  for (const [id, m] of Object.entries(STATE.matches)) {
+    const b = (base.matches || {})[id] || {}, d = {};
+    for (const k of ["s1","s2","time","at","live"]) if (m[k] !== undefined && m[k] !== b[k]) d[k] = m[k];
+    if (Object.keys(d).length) ms[id] = d;
+  }
+  if (Object.keys(ms).length) p.matches = ms;
+  if (JSON.stringify(STATE.opts) !== JSON.stringify(base.opts || {})) p.opts = STATE.opts;
+  if (full || STATE.air !== base.air) p.air = STATE.air;
+  if (full || (STATE.cast || null) !== (base.cast || null)) p.cast = STATE.cast || null;
+  if (full || STATE.autoSync !== base.autoSync) p.autoSync = STATE.autoSync;
+  return p;
+}
+async function pushNow(full){
+  if (!SYNCED || !SYNC_KEY) return;
+  const patch = diffPatch(full);
+  if (!Object.keys(patch).length) return;
+  try {
+    const r = await fetch("/api/state", { method:"POST", headers:{ "Content-Type":"application/json", "X-Sync-Key": SYNC_KEY }, body: JSON.stringify(patch) });
+    if (r.status === 403) toast("This link can't change the bracket: its key is missing or wrong");
+  } catch(e) {}
+  syncPoll();
+}
+function schedulePush(){ clearTimeout(pushTimer); pushTimer = setTimeout(() => pushNow(false), 120); }
+syncPoll(); setInterval(syncPoll, 1500);
+
+function save(){ STATE.rev = Date.now(); lastRev = STATE.rev; try { localStorage.setItem(STORE_KEY, JSON.stringify(STATE)); } catch(e) {} renderAll(); if (SYNCED) schedulePush(); }
 
 /* ---------- Resolution ---------- */
 function resolve(){
@@ -667,7 +723,7 @@ function stageHTML(part, enter){
     const major = PARTS[part].cols[p.c].major, live = st.live && !r.winner;
     const t = colTime(PARTS[part].cols[p.c].ids);
     h += `<div class="match${major ? " major" : ""}${live ? " is-live" : ""}" style="left:${p.x}px;top:${p.y}px;width:${p.w}px">
-      ${live ? `<span class="live">Live</span>` : ""}${major ? `<span class="qual">Qualified<small>for the Major</small></span>` : ""}${!t && st.time ? `<span class="mtime">${esc(st.time)} CET</span>` : ""}
+      ${(live || castId() === id) ? `<span class="live${castId() === id ? " oncast" : ""}${live ? "" : " nolive"}">${live ? "Live" : ""}${live && castId() === id ? " · " : ""}${castId() === id ? "On cast" : ""}</span>` : ""}${major ? `<span class="qual">Qualified<small>for the Major</small></span>` : ""}${!t && st.time ? `<span class="mtime">${esc(st.time)} CET</span>` : ""}
       ${rowHTML(r.t1, st.s1, r, r.hints[0], p.c, 0)}${rowHTML(r.t2, st.s2, r, r.hints[1], p.c, 1)}</div>`;
   }
   return `<div class="stage p${part}${o.bg ? " bg" : ""}${enter ? " enter" : ""}${o.title ? "" : " hide-title"}${o.times ? "" : " hide-times"}${o.seeds ? "" : " hide-seeds"}"
@@ -755,6 +811,14 @@ function fmtTime(raw){
   return ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getDay()] + " " + m[4].padStart(2,"0") + ":" + m[5];
 }
 async function syncSheet(silent){
+  if (SYNCED) {
+    const status = document.getElementById("syncStatus");
+    if (SYNC_KEY) { try { await fetch("/api/sheet", { method:"POST", headers:{ "X-Sync-Key": SYNC_KEY } }); } catch(e) {} }
+    await syncPoll();
+    if (status) status.textContent = "Synced · the server pulls the sheet every 30 s";
+    if (!silent) toast("Results pulled");
+    return;
+  }
   const status = document.getElementById("syncStatus");
   try {
     if (status) status.textContent = "Pulling results…";
@@ -789,9 +853,10 @@ let lastPart = null, syncTimer = null, rotTimer = null;
 const ROTATE = (location.hash + location.search).match(/rotate=?(\d+)/i);
 let LOCAL_PART = PIN ? +PIN[1] : null;
 try { if (!LOCAL_PART && localStorage.getItem("od_local_part")) LOCAL_PART = +localStorage.getItem("od_local_part"); } catch(e) {}
-function setLocalPart(n){ LOCAL_PART = n; try { localStorage.setItem("od_local_part", String(n)); } catch(e) {} renderAll(); }
+function setLocalPart(n){ if (SYNCED && SYNC_KEY && !PIN) { STATE.air = n; save(); return; } LOCAL_PART = n; try { localStorage.setItem("od_local_part", String(n)); } catch(e) {} renderAll(); }
 
 function renderAll(){
+  setTimeout(refreshCastPickers, 0);
   if (MODE === "control") {
     const pw = document.getElementById("previewWrap");
     const part = STATE.air; if (TRANSITIONING) DIRTY = true; else showPart(pw, part);
@@ -805,7 +870,7 @@ function renderAll(){
     optTitle.checked = o.title; optBg.checked = o.bg; optTimes.checked = o.times; optSeeds.checked = o.seeds; optOpacity.value = o.opacity;
     optRotate.checked = o.rotate; optRotateSec.value = o.rotateSec; autoSync.checked = STATE.autoSync;
   } else {
-    const part = LOCAL_PART || STATE.air;
+    const part = PIN ? +PIN[1] : (SYNCED ? STATE.air : (LOCAL_PART || STATE.air));
     const ow = document.getElementById("overlayWrap"); if (TRANSITIONING) DIRTY = true; else showPart(ow, part);
     oz1.setAttribute("aria-pressed", part === 1); oz2.setAttribute("aria-pressed", part === 2);
   }
@@ -830,7 +895,7 @@ function showPart(wrap, part){
     TRANSITIONING = false; if (DIRTY) { DIRTY = false; renderAll(); }
   };
 }
-function setRotate(){ clearInterval(rotTimer); if (STATE.opts.rotate) rotTimer = setInterval(() => { STATE.air = STATE.air === 1 ? 2 : 1; save(); }, Math.max(5, STATE.opts.rotateSec) * 1000); }
+function setRotate(){ clearInterval(rotTimer); if (SYNCED) return; if (STATE.opts.rotate) rotTimer = setInterval(() => { STATE.air = STATE.air === 1 ? 2 : 1; save(); }, Math.max(5, STATE.opts.rotateSec) * 1000); }
 function setAutoSync(on){ clearInterval(syncTimer); syncTimer = on ? setInterval(() => syncSheet(true), 45000) : null; }
 
 
@@ -903,11 +968,11 @@ function gpFit(){
   const used = 1080 * sc, room = h - used, off = document.getElementById("gpOff");
   document.body.classList.toggle("has-room", room >= 40); off.style.top = used + "px"; off.style.height = room + "px";
 }
-async function gpCheck(){
+async function gpCheck(noFetch){
   const status = document.getElementById("gpStatus");
   const before = snapshot();
   let prev; try { prev = JSON.parse(localStorage.getItem(GP_SNAP_KEY)); } catch(e) {}
-  const ok = await syncSheet(true).then(() => !/Couldn't/.test(document.getElementById("syncStatus").textContent));
+  const ok = noFetch === true ? true : await syncSheet(true).then(() => !/Couldn't/.test(document.getElementById("syncStatus").textContent));
   const now = snapshot();
   if (!ok) { status.textContent = "Couldn't reach the sheet. Retrying in 20 s."; return; }
   const base = prev && Object.keys(prev).length ? prev : null;
@@ -928,15 +993,37 @@ function gpDemo(kind){
   gpShow({ kind, id }, html);
 }
 function initGameplay(){
+  setTimeout(refreshCastPickers, 0);
   document.body.className = "gameplay"; document.getElementById("gpWrap").hidden = false;
   gpFit(); window.addEventListener("resize", gpFit);
   gpTestMap.onclick = () => gpDemo("map");
   gpTestMatch.onclick = () => gpDemo("match");
   gpReplay.onclick = () => { if (gpLast) gpShow(gpLast.e, gpLast.html); };
   gpCheckBtn.onclick = () => gpCheck();
+  watchStore(() => gpCheck(true));
   gpCheck(); setInterval(gpCheck, 20000);
 }
 
+
+/* ---------- Cast match: the match the casters are covering ---------- */
+const CAST_PIN = (location.hash + location.search).match(/cast=([A-Z0-9_]+)/i);
+function castId(){
+  const id = CAST_PIN ? CAST_PIN[1].toUpperCase() : STATE.cast;
+  if (!id || !STRUCT[id]) return null;
+  const r = resolve()[id];
+  return r.winner ? null : id;           // a finished match is no longer "on cast"
+}
+function castOptions(){
+  const R = resolve(), cur = STATE.cast || "";
+  const opts = Object.keys(STRUCT).filter(id => !R[id].winner && realTeam(R[id].t1) && realTeam(R[id].t2))
+    .map(id => `<option value="${id}"${id === cur ? " selected" : ""}>${esc(id.replace(/^R(\d)_(UB|LB)(\d)$/, "R$1 $2 $3"))} · ${esc(R[id].t1)} vs ${esc(R[id].t2)}</option>`);
+  return `<option value="">No cast match</option>` + opts.join("");
+}
+function setCast(id){ STATE.cast = id || null; save(); refreshCastPickers(); }
+function refreshCastPickers(){
+  document.querySelectorAll("select.castpick").forEach(sel => { if (document.activeElement !== sel) sel.innerHTML = castOptions(); });
+}
+document.addEventListener("change", e => { if (e.target.classList && e.target.classList.contains("castpick")) setCast(e.target.value); });
 
 /* ---------- Countdown to a match start ---------- */
 const EVENT_DAYS = { Sat:"2026-11-07", Sun:"2026-11-08" };
@@ -959,6 +1046,7 @@ setInterval(() => document.querySelectorAll("[data-at]").forEach(el => {
   if (el.parentElement) el.parentElement.classList.toggle("is-soon", txt === "Starting soon");
 }), 1000);
 function nextMatchId(){
+  const c = castId(); if (c) return c;
   const R = resolve(), ids = Object.keys(STRUCT);
   const ready = id => !R[id].winner && realTeam(R[id].t1) && realTeam(R[id].t2);
   return ids.filter(ready).sort((a, b) => (STATE.matches[b].live - STATE.matches[a].live) || (timeKey(STATE.matches[a].time) - timeKey(STATE.matches[b].time)) || (ids.indexOf(a) - ids.indexOf(b)))[0];
@@ -974,6 +1062,7 @@ function wsTeam(name, cls){
   return { img, name: `<span class="${cls || ""}">${esc(name)}</span>` };
 }
 function wsRender(){
+  setTimeout(refreshCastPickers, 0);
   const R = resolve(), ids = Object.keys(STRUCT);
   let done = {}; try { done = JSON.parse(localStorage.getItem(WS_DONE_KEY)) || {}; } catch(e) {}
   const first = !Object.keys(done).length;
@@ -985,11 +1074,12 @@ function wsRender(){
   try { localStorage.setItem(WS_DONE_KEY, JSON.stringify(done)); } catch(e) {}
   const last = Object.keys(done).sort((a, b) => done[b] - done[a])[0];
   const ready = id => !R[id].winner && realTeam(R[id].t1) && realTeam(R[id].t2);
-  const next = ids.filter(ready).sort((a, b) => (STATE.matches[b].live - STATE.matches[a].live) || (timeKey(STATE.matches[a].time) - timeKey(STATE.matches[b].time)) || (ids.indexOf(a) - ids.indexOf(b)))[0];
+  const next = nextMatchId();
   let nextHTML = "", resHTML = "";
   if (next) {
     const st = STATE.matches[next], a = wsTeam(R[next].t1), b = wsTeam(R[next].t2);
-    nextHTML = `<div class="lbl${st.live ? " on-air" : ""}">${st.live ? "Live now" : "Up next"}</div>
+    const onCast = castId() === next;
+    nextHTML = `<div class="lbl${st.live ? " on-air" : ""}">${st.live ? "Live now" : "Up next"}${onCast ? " · On cast" : ""}</div>
       <div class="line">${a.img}${a.name}<span class="vs">vs</span>${b.name}${b.img}</div>
       <div class="sub">${esc(matchName(next))}${!st.live && st.time ? " · " + esc(st.time) + " CET" : ""}</div>
       ${!st.live && matchStart(next) ? `<div class="cdwrap${countdownText(matchStart(next)) === "Starting soon" ? " is-soon" : ""}"><span class="cdl">Starts in</span><span class="cd" data-at="${matchStart(next).toISOString()}">${countdownText(matchStart(next))}</span></div>` : ""}`;
@@ -1052,7 +1142,13 @@ async function wsCheck(){
   wsRender();
   status.textContent = failed ? "Couldn't reach the sheet. Retrying in 20 s." : `Sheet checked at ${new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", second:"2-digit"})}`;
 }
+function watchStore(onChange){
+  const pull = () => { try { const s = JSON.parse(localStorage.getItem(STORE_KEY)); if (s && s.rev && s.rev !== lastRev) { STATE = load(); lastRev = STATE.rev; onChange(); } } catch(e) {} };
+  window.addEventListener("storage", e => { if (e.key === STORE_KEY) pull(); });
+  setInterval(pull, 1000);
+}
 function initWaiting(){
+  watchStore(() => wsRender());
   document.body.className = "waiting"; document.getElementById("gpWrap").hidden = false;
   gpFit(); window.addEventListener("resize", gpFit);
   gpCheckBtn.onclick = () => wsCheck();
@@ -1062,12 +1158,13 @@ function initWaiting(){
 /* ---------- Casters view: next match + countdown, bottom-left ---------- */
 let csLast = "";
 function csRender(){
+  setTimeout(refreshCastPickers, 0);
   const R = resolve(), id = nextMatchId(), el = document.getElementById("gpStage");
   let html = "";
   if (id) {
     const st = STATE.matches[id], r = R[id], at = matchStart(id);
     const tm = n => { const t = TEAMS[n] || {}; return t.logo && LOGOS[t.logo] ? `<img src="${LOGOS[t.logo]}" alt="">` : ""; };
-    html = `<div class="cs"><div class="cs-top"><span class="cs-lbl${st.live ? " on-air" : ""}">${st.live ? "Live now" : "Up next"}</span><span class="cs-rd">${esc(matchName(id))}</span></div>
+    html = `<div class="cs"><div class="cs-top"><span class="cs-lbl${st.live ? " on-air" : ""}">${st.live ? "Live now" : "Up next"}${castId() === id ? " · On cast" : ""}</span><span class="cs-rd">${esc(matchName(id))}</span></div>
       <div class="cs-teams">${tm(r.t1)}<b>${esc(r.t1)}</b><i>vs</i><b>${esc(r.t2)}</b>${tm(r.t2)}</div>
       ${st.live ? "" : (at ? `<div class="cs-cd${countdownText(at) === "Starting soon" ? " is-soon" : ""}"><span>Starts in</span><b data-at="${at.toISOString()}">${countdownText(at)}</b></div>` : "")}</div>`;
   }
@@ -1080,6 +1177,7 @@ async function csCheck(){
   document.getElementById("gpStatus").textContent = failed ? "Couldn't reach the sheet. Retrying in 20 s." : `Sheet checked at ${new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", second:"2-digit"})}`;
 }
 function initCasters(){
+  watchStore(() => csRender());
   document.body.className = "waiting casters"; document.getElementById("gpWrap").hidden = false;
   gpFit(); window.addEventListener("resize", gpFit);
   gpCheckBtn.onclick = () => csCheck();
@@ -1113,9 +1211,9 @@ function init(){
     const rotSec = ROTATE ? Math.max(5, +ROTATE[1]) : 20;
     let autoTimer = null;
     const setAuto = on => { clearInterval(autoTimer); autoTimer = on ? setInterval(() => setLocalPart((LOCAL_PART || STATE.air) === 1 ? 2 : 1), rotSec * 1000) : null; ozAuto.setAttribute("aria-pressed", on); ozAuto.textContent = on ? `Auto switch: ${rotSec} s` : "Auto switch"; };
-    oz1.onclick = () => { setAuto(false); setLocalPart(1); };
-    oz2.onclick = () => { setAuto(false); setLocalPart(2); };
-    ozAuto.onclick = () => setAuto(!autoTimer);
+    oz1.onclick = () => { setAuto(false); if (SYNCED && SYNC_KEY) STATE.opts.rotate = false; setLocalPart(1); };
+    oz2.onclick = () => { setAuto(false); if (SYNCED && SYNC_KEY) STATE.opts.rotate = false; setLocalPart(2); };
+    ozAuto.onclick = () => { if (SYNCED && SYNC_KEY) { STATE.opts.rotate = !STATE.opts.rotate; save(); ozAuto.setAttribute("aria-pressed", STATE.opts.rotate); ozAuto.textContent = STATE.opts.rotate ? `Auto switch: ${STATE.opts.rotateSec || 20} s` : "Auto switch"; return; } setAuto(!autoTimer); };
     if (ROTATE) { if (!LOCAL_PART) LOCAL_PART = 1; setAuto(true); }
   }
   renderAll();

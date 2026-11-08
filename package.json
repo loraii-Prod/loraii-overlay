@@ -1,0 +1,7 @@
+{
+  "name": "overdrive-wildcard-bracket",
+  "private": true,
+  "description": "OverDrive Wildcard 2026 bracket overlay with live sync",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}

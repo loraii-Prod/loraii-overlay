@@ -6,6 +6,18 @@ This branch only holds the bracket. It shares no files with the loraii overlays 
 - **Part 1:** upper bracket (Round 1, quarter-finals, upper qualifiers)
 - **Part 2:** lower bracket (lower rounds 2–4, lower qualifiers), plus a numbered "Qualified" column on the right with all four qualified teams
 
+## Live sync (recommended)
+
+`server.js` serves the same page plus a small state API, deployed as the Render web service
+`overdrive-wildcard-live`. Every OBS source, dock and browser opened from that address shows the same
+state: scores, the part on air, the cast match and display options. Changes reach every source within
+about 2 seconds. The server pulls the Google Sheet every 30 s and runs Auto switch itself.
+
+- Links with `key=<SYNC_KEY>` can change things; links without it are read-only.
+- The free plan sleeps after 15 minutes with no visitors; the sources poll every 1.5 s, so it stays awake
+  while OBS is open. After a sleep the first load takes about a minute.
+- State is kept in memory: after a restart the first page opened with the key puts it back.
+
 ## Addresses
 
 | What | Address |
