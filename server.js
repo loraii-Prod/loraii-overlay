@@ -1,7 +1,7 @@
 // OverDrive Wildcard 2026: bracket overlay + live sync server.
 // Serves index.html and a tiny state API so every OBS source, dock and browser shows the same bracket.
 //   GET  /api/state?since=<rev>  -> 200 {state} when newer, 204 when unchanged
-//   POST /api/state               -> apply a patch {matches?, opts?, air?, cast?, autoSync?} (needs X-Sync-Key)
+//   POST /api/state               -> apply a patch {matches?, opts?, air?, cast?, autoSync?, wsTimer?} (needs X-Sync-Key)
 //   POST /api/sheet               -> pull the Google Sheet now (needs X-Sync-Key)
 // The server also pulls the sheet every 30 s (when autoSync is on) and runs Auto switch between parts.
 const http = require("http");
@@ -13,7 +13,7 @@ const KEY = process.env.SYNC_KEY || "";
 const SHEET_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQD2Um71alwYDoejxYV15ud9NZLq8E0re8efnSUDkw5M-HN_ApEd9KOmVhuiwEm0bzPdmdQbeHw0NgC/pub?gid=0&single=true&output=csv";
 const INDEX = fs.readFileSync(path.join(__dirname, "index.html"));
 
-let state = { matches: {}, opts: {}, air: 1, cast: null, autoSync: true, rev: 0, sheetAt: null };
+let state = { matches: {}, opts: {}, air: 1, cast: null, wsTimer: null, autoSync: true, rev: 0, sheetAt: null };
 let lastRotate = Date.now();
 const bump = () => { state.rev = Date.now(); };
 
@@ -31,6 +31,7 @@ function applyPatch(p) {
   if (p.air === 1 || p.air === 2) { state.air = p.air; lastRotate = Date.now(); }
   if ("cast" in p) state.cast = p.cast && /^R\d_(UB|LB)\d$/.test(p.cast) ? p.cast : null;
   if ("autoSync" in p) state.autoSync = !!p.autoSync;
+  if ("wsTimer" in p) state.wsTimer = typeof p.wsTimer === "number" && p.wsTimer > 0 ? p.wsTimer : null;
   bump();
 }
 

@@ -54,6 +54,12 @@ Test match popup, Replay last and Check sheet now (via Interact). Refreshing doe
 from the right with the latest result; it only changes when a new result comes in ("Just in").
 Source 1920×1160, crop bottom 80 (Check sheet now button via Interact).
 
+## Waiting screen countdown
+
+In the strip below the picture (Interact): **Countdown** dropdown (match start time, 5, 10 or 15 min) and
+**−1 min** / **+1 min**. A manual countdown is shared by every synced waiting-screen source; pick
+"match start time" to go back to the sheet's time.
+
 ## Casters view: next match + countdown
 
 `…/#casters` puts the live or next match and a countdown to its start in the bottom-left of the casters booth,

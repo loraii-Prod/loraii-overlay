@@ -432,6 +432,11 @@ details.help code{background:#2A1812;padding:1px 6px;color:var(--ink)}
 select.castpick{background:#2A1812;border:1px solid #4A2B20;color:#fff;font:700 14px Montserrat,sans-serif;padding:9px 10px;max-width:420px}
 select.castpick:focus-visible{outline:2px solid var(--ember)}
 
+
+.gp-off .ws-only{display:none;gap:8px;align-items:center}
+body.waiting:not(.casters) .gp-off .ws-only{display:inline-flex}
+#wsTimerPick{background:#2A1812;border:1px solid #4A2B20;color:#fff;font:700 14px Montserrat,sans-serif;padding:9px 10px}
+
 </style>
 </head>
 <body>
@@ -489,6 +494,9 @@ select.castpick:focus-visible{outline:2px solid var(--ember)}
   <button id="gpTestMatch" class="gp-only">Test match popup</button>
   <button id="gpReplay" class="gp-only">Replay last</button>
   <button id="gpCheckBtn">Check sheet now</button>
+  <span class="ws-only tctl"><select id="wsTimerPick" aria-label="Countdown">
+    <option value="">Countdown: match start time</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="custom" hidden>Manual</option>
+  </select><button id="wsMinus" aria-label="One minute less">−1 min</button><button id="wsPlus" aria-label="One minute more">+1 min</button></span>
   <select class="castpick" aria-label="Cast match"></select>
   <span id="gpStatus">Waiting for the sheet…</span>
 </div>
@@ -576,7 +584,7 @@ function load(){
     if (s && s.matches) {
       const b = blankState(); Object.assign(b.opts, s.opts||{});
       for (const k in b.matches) Object.assign(b.matches[k], s.matches[k]||{});
-      b.rev = s.rev||0; b.autoSync = !!s.autoSync; b.air = s.air === 2 ? 2 : 1; b.cast = s.cast || null; return b;
+      b.rev = s.rev||0; b.autoSync = !!s.autoSync; b.air = s.air === 2 ? 2 : 1; b.cast = s.cast || null; b.wsTimer = typeof s.wsTimer === "number" ? s.wsTimer : null; return b;
     }
   } catch(e) {}
   const b = blankState(); b.matches.R1_UB1.s1 = "W"; return b;
@@ -611,6 +619,7 @@ function diffPatch(full){
   if (full || STATE.air !== base.air) p.air = STATE.air;
   if (full || (STATE.cast || null) !== (base.cast || null)) p.cast = STATE.cast || null;
   if (full || STATE.autoSync !== base.autoSync) p.autoSync = STATE.autoSync;
+  if (full || (STATE.wsTimer || null) !== (base.wsTimer || null)) p.wsTimer = STATE.wsTimer || null;
   return p;
 }
 async function pushNow(full){
@@ -1082,7 +1091,8 @@ function wsRender(){
     nextHTML = `<div class="lbl${st.live ? " on-air" : ""}">${st.live ? "Live now" : "Up next"}${onCast ? " · On cast" : ""}</div>
       <div class="line">${a.img}${a.name}<span class="vs">vs</span>${b.name}${b.img}</div>
       <div class="sub">${esc(matchName(next))}${!st.live && st.time ? " · " + esc(st.time) + " CET" : ""}</div>
-      ${!st.live && matchStart(next) ? `<div class="cdwrap${countdownText(matchStart(next)) === "Starting soon" ? " is-soon" : ""}"><span class="cdl">Starts in</span><span class="cd" data-at="${matchStart(next).toISOString()}">${countdownText(matchStart(next))}</span></div>` : ""}`;
+      ${(() => { const at = STATE.wsTimer ? new Date(STATE.wsTimer) : (!st.live ? matchStart(next) : null); if (!at) return "";
+        return `<div class="cdwrap${countdownText(at) === "Starting soon" ? " is-soon" : ""}"><span class="cdl">Starts in</span><span class="cd" data-at="${at.toISOString()}">${countdownText(at)}</span></div>`; })()}`;
   }
   const stage = document.getElementById("gpStage");
   if (!stage.querySelector(".ws2")) stage.innerHTML = `<div class="ws2 next"></div><div class="splash" id="splash"></div>`;
@@ -1139,8 +1149,20 @@ function watchStore(onChange){
   window.addEventListener("storage", e => { if (e.key === STORE_KEY) pull(); });
   setInterval(pull, 1000);
 }
+function setWsTimer(ms){ STATE.wsTimer = ms; save(); wsRender(); syncTimerPick(); }
+function syncTimerPick(){
+  const sel = document.getElementById("wsTimerPick"); if (!sel || document.activeElement === sel) return;
+  sel.value = STATE.wsTimer ? "custom" : "";
+  const opt = sel.querySelector('option[value="custom"]');
+  opt.hidden = !STATE.wsTimer; opt.textContent = STATE.wsTimer ? "Manual: " + new Date(STATE.wsTimer).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}) : "Manual";
+}
 function initWaiting(){
-  watchStore(() => wsRender());
+  watchStore(() => { wsRender(); syncTimerPick(); });
+  wsTimerPick.onchange = e => { const v = e.target.value; if (v === "custom") return; setWsTimer(v ? Date.now() + (+v) * 60000 : null); e.target.blur(); };
+  const nudge = d => { const base = STATE.wsTimer || (matchStart(nextMatchId() || "") || new Date()).getTime?.() || Date.now(); setWsTimer(Math.max(Date.now(), base) + d * 60000); };
+  wsMinus.onclick = () => { const base = STATE.wsTimer || (nextMatchId() && matchStart(nextMatchId()) ? matchStart(nextMatchId()).getTime() : Date.now()); setWsTimer(Math.max(Date.now(), base - 60000)); };
+  wsPlus.onclick = () => { const base = STATE.wsTimer || (nextMatchId() && matchStart(nextMatchId()) ? matchStart(nextMatchId()).getTime() : Date.now()); setWsTimer(Math.max(Date.now(), base) + 60000); };
+  setTimeout(syncTimerPick, 0);
   document.body.className = "waiting"; document.getElementById("gpWrap").hidden = false;
   gpFit(); window.addEventListener("resize", gpFit);
   gpCheckBtn.onclick = () => wsCheck();
