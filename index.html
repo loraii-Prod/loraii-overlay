@@ -437,6 +437,16 @@ select.castpick:focus-visible{outline:2px solid var(--ember)}
 body.waiting:not(.casters) .gp-off .ws-only{display:inline-flex}
 #wsTimerPick{background:#2A1812;border:1px solid #4A2B20;color:#fff;font:700 14px Montserrat,sans-serif;padding:9px 10px}
 
+
+/* ===== Big control area below the 1080 line (source 1920x1480, crop bottom 400) ===== */
+.offzone,.gp-off{flex-wrap:wrap;align-content:center;align-items:center;gap:20px 22px;padding:30px 48px;border-top:4px solid var(--orange)}
+.offzone button,.gp-off button{padding:24px 40px;font-size:28px;min-width:180px;text-align:center;border-width:2px}
+.offzone button[aria-pressed=true]{outline:3px solid #fff;outline-offset:-3px}
+.offzone select.castpick,.gp-off select.castpick,#wsTimerPick{font-size:24px;padding:22px 18px;max-width:none;min-width:420px;border-width:2px}
+.gp-off .ws-only{gap:22px}
+.offzone span,.gp-off span#gpStatus{flex-basis:100%;margin-left:0;font-size:20px;text-align:left}
+.offzone span.zhint,.gp-off span.zhint{flex-basis:100%;font-size:18px;color:#8E8580;order:99}
+
 </style>
 </head>
 <body>
@@ -486,7 +496,7 @@ body.waiting:not(.casters) .gp-off .ws-only{display:inline-flex}
   <button id="oz2" aria-pressed="false">Part 2</button>
   <button id="ozAuto" aria-pressed="false">Auto switch</button>
   <select class="castpick" aria-label="Cast match"></select>
-  <span>Below 1080 px: crop this strip off in OBS</span>
+  <span class="zhint">Controls area, hidden from stream: set the source to 1920×1480 and Crop Bottom 400 in OBS.</span>
 </div>
 <div class="gp-wrap" id="gpWrap" hidden><div class="gp-stage" id="gpStage"></div></div>
 <div class="gp-off" id="gpOff" role="group" aria-label="Match updates">
@@ -499,6 +509,7 @@ body.waiting:not(.casters) .gp-off .ws-only{display:inline-flex}
   </select><button id="wsMinus" aria-label="One minute less">−1 min</button><button id="wsPlus" aria-label="One minute more">+1 min</button></span>
   <select class="castpick" aria-label="Cast match"></select>
   <span id="gpStatus">Waiting for the sheet…</span>
+  <span class="zhint">Controls area, hidden from stream: set the source to 1920×1480 and Crop Bottom 400 in OBS.</span>
 </div>
 <div class="toast" id="toast" role="status"></div>
 

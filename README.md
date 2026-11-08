@@ -45,14 +45,14 @@ about 2 seconds. The server pulls the Google Sheet every 30 s and runs Auto swit
 
 `…/#gameplay` is a separate transparent view for the gameplay scene. It checks the sheet every 20 s and pops up
 a banner top-left, under the in-game player tag and live ranking, when a map is won (score, who leads, match point) or a match ends (who advances, drops,
-is eliminated or qualifies for the Major). Source 1920×1160, crop bottom 80; the strip has Test map popup,
+is eliminated or qualifies for the Major). Source 1920×1480, crop bottom 400; the strip has Test map popup,
 Test match popup, Replay last and Check sheet now (via Interact). Refreshing doesn't replay old results.
 
 ## Waiting screen: up next + latest results
 
 `…/#waiting` sits under "We'll be right back" on the intermission scene: the live or next match centred, and a results splash
 from the right with the latest result; it only changes when a new result comes in ("Just in").
-Source 1920×1160, crop bottom 80 (Check sheet now button via Interact).
+Source 1920×1480, crop bottom 400 (Check sheet now button via Interact).
 
 ## Waiting screen countdown
 
@@ -69,7 +69,7 @@ from the sheet; past the start time it reads "Starting soon".
 ## Switching parts in a single OBS source
 
 - Add `rotate=N` to the address to alternate Part 1 and Part 2 every N seconds.
-- Or set the source to **1920×1160** and crop **80 px** off the bottom (Edit Transform → Crop Bottom 80).
+- Or set the source to **1920×1480** and crop **400 px** off the bottom (Edit Transform → Crop Bottom 400).
   The strip below the picture has **Part 1**, **Part 2** and **Auto switch** buttons: right-click the
   source → **Interact** to click them. Viewers never see the strip. Keys **1** / **2** work too.
 - Both play the slide-in animation and need no controller.
