@@ -383,6 +383,47 @@ details.help code{background:#2A1812;padding:1px 6px;color:var(--ink)}
 .gp .line{font-size:12px;padding:7px 10px;line-height:1.3;white-space:normal}
 .gp .ctx{top:auto;bottom:calc(100% + 4px);font-size:12px}
 
+
+/* ===== Size pass: smaller waiting, casters, qualified ===== */
+.ws2.next{top:540px}
+.ws2 .lbl{font-size:14px;margin-bottom:10px}
+.ws2 .line{font-size:30px;gap:14px}
+.ws2 .line img{width:34px;height:34px}
+.ws2 .vs{font-size:17px}
+.ws2 .sub{font-size:14px;margin-top:8px}
+.ws2 .cdwrap{margin-top:16px;padding:6px 16px;gap:10px}
+.ws2 .cdl{font-size:13px}
+.ws2 .cd{font-size:36px}
+.ws2 .cd.soon{font-size:20px}
+.splash{width:620px;height:120px;bottom:90px;padding:0 40px 0 34px}
+.splash .top{margin-bottom:8px;gap:10px}
+.splash .lbl{font-size:13px}
+.splash .rd{font-size:12px}
+.splash .count{font-size:12px}
+.splash .res{grid-template-columns:28px 1fr auto 1fr 28px;gap:10px;font-size:21px}
+.splash .res img{width:28px;height:28px}
+.splash .res .sc{font-size:30px;padding:0 2px}
+.splash .note{margin-top:6px;font-size:12px}
+.cs{width:470px;padding:10px 16px 12px}
+.cs-top{margin-bottom:7px}
+.cs-lbl{font-size:13px}
+.cs-rd{font-size:12px}
+.cs-teams{font-size:19px;gap:9px}
+.cs-teams img{width:24px;height:24px}
+.cs-teams b{max-width:180px}
+.cs-teams i{font-size:13px}
+.cs-cd{margin-top:8px;padding-top:7px}
+.cs-cd span{font-size:12px}
+.cs-cd b{font-size:30px}
+.cs-cd b.soon{font-size:18px}
+.qcol{width:250px}
+.qcol .qt{margin-bottom:18px;font-size:15px}
+.qcol .qi{height:44px;margin-bottom:5px;gap:10px;padding:0 12px}
+.qcol .qi .n{font-size:17px;width:12px}
+.qcol .qi img{width:26px;height:26px}
+.qcol .qi b{font-size:16px}
+.qcol .qi.open b{font-size:13px}
+
 </style>
 </head>
 <body>
@@ -612,7 +653,7 @@ function stageHTML(part, enter){
   });
   h += `<svg class="lines" width="1920" height="1080" aria-hidden="true">${paths.join("")}</svg>`;
   if (part === 2) {
-    const qx = 1560, qy = 260;
+    const qx = 1600, qy = 300;
     const qs = ["R3_UB1","R3_UB2","R5_LB1","R5_LB2"].map((id, i) => {
       const w = R[id].winner;
       if (!w) return `<div class="qi open"><span class="n">${i+1}</span><b>${i < 2 ? "Upper" : "Lower"} qualifier · TBD</b></div>`;
