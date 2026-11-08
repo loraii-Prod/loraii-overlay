@@ -32,7 +32,7 @@ This branch only holds the bracket. It shares no files with the loraii overlays 
 ## Gameplay scene: match updates
 
 `…/#gameplay` is a separate transparent view for the gameplay scene. It checks the sheet every 20 s and pops up
-a banner bottom-left when a map is won (score, who leads, match point) or a match ends (who advances, drops,
+a banner top-left, under the in-game player tag and live ranking, when a map is won (score, who leads, match point) or a match ends (who advances, drops,
 is eliminated or qualifies for the Major). Source 1920×1160, crop bottom 80; the strip has Test map popup,
 Test match popup, Replay last and Check sheet now (via Interact). Refreshing doesn't replay old results.
 
@@ -41,6 +41,12 @@ Test match popup, Replay last and Check sheet now (via Interact). Refreshing doe
 `…/#waiting` sits under "We'll be right back" on the intermission scene: the live or next match centred, and a results splash
 from the right that cycles newest to oldest (7 s each); a new result cuts in as "Just in". Checks the sheet every 20 s.
 Source 1920×1160, crop bottom 80 (Check sheet now button via Interact).
+
+## Casters view: next match + countdown
+
+`…/#casters` puts the live or next match and a countdown to its start in the bottom-left of the casters booth,
+above the bottom bar. The waiting screen (`#waiting`) shows the same countdown under Up next. Start times come
+from the sheet; past the start time it reads "Starting soon".
 
 ## Switching parts in a single OBS source
 

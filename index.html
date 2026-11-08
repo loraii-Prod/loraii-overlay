@@ -343,6 +343,46 @@ details.help code{background:#2A1812;padding:1px 6px;color:var(--ink)}
 .splash .note{color:var(--muted)}
 .splash .res .sc{color:var(--hot)}
 
+
+/* Countdown (waiting screen) */
+.ws2 .cdwrap{margin-top:22px;display:inline-flex;align-items:baseline;gap:14px;padding:8px 22px;background:var(--box);clip-path:polygon(0 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%)}
+.ws2 .cdl{font-weight:800;font-style:italic;font-size:17px;text-transform:uppercase;color:var(--muted)}
+.ws2 .cd{font-family:'Anton',sans-serif;font-size:54px;line-height:1;color:var(--hot);font-variant-numeric:tabular-nums;letter-spacing:1px}
+.ws2 .cd.soon,.cs-cd b.soon{font-family:'Montserrat',sans-serif;font-weight:900;font-style:italic;font-size:30px;text-transform:uppercase}
+
+.cdwrap.is-soon .cdl,.cs-cd.is-soon span{display:none}
+
+/* Casters view: bottom-left, above the casters-booth bottom bar */
+.cs{position:absolute;left:72px;bottom:126px;width:640px;padding:12px 20px 14px;background:var(--box);border-left:4px solid var(--hot);
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%);color:#fff}
+.cs.in{animation:gpin .6s cubic-bezier(.2,.8,.2,1) both}
+.cs-top{display:flex;align-items:baseline;gap:12px;margin-bottom:10px}
+.cs-lbl{font-weight:900;font-style:italic;font-size:16px;text-transform:uppercase;color:var(--hot)}
+.cs-lbl.on-air::before{content:"● "}
+.cs-rd{font-weight:800;font-style:italic;font-size:14px;text-transform:uppercase;color:var(--muted)}
+.cs-teams{display:flex;align-items:center;gap:12px;font-weight:900;font-style:italic;font-size:26px;text-transform:uppercase;line-height:1}
+.cs-teams img{width:34px;height:34px;object-fit:contain}
+.cs-teams b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:250px}
+.cs-teams i{font-size:16px;color:var(--muted)}
+.cs-cd{display:flex;align-items:baseline;gap:12px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)}
+.cs-cd span{font-weight:800;font-style:italic;font-size:15px;text-transform:uppercase;color:var(--muted)}
+.cs-cd b{font-family:'Anton',sans-serif;font-weight:400;font-size:44px;line-height:1;color:var(--hot);font-variant-numeric:tabular-nums;letter-spacing:1px}
+
+/* Gameplay popup: top-left, under the in-game player tag + live ranking, same width */
+.gp{left:10px;top:340px;bottom:auto}
+.gp .tag,.gp.gp-match .tag{width:96px;padding:0 6px}
+.gp .tag small{font-size:11px}
+.gp .tag b{font-size:38px}
+.gp.gp-match .tag b{font-size:32px}
+.gp .body{min-width:0;width:300px}
+.gp .r{height:34px}
+.gp .r .logo{width:24px;height:24px;margin-left:8px}
+.gp .r .logo img{width:20px;height:20px}
+.gp .r .name{font-size:16px;padding:0 8px}
+.gp .r .score{width:38px;font-size:20px}
+.gp .line{font-size:12px;padding:7px 10px;line-height:1.3;white-space:normal}
+.gp .ctx{top:auto;bottom:calc(100% + 4px);font-size:12px}
+
 </style>
 </head>
 <body>
@@ -686,6 +726,8 @@ async function syncSheet(silent){
       st.s1 = (r[43]||"").trim().toUpperCase(); st.s2 = (r[44]||"").trim().toUpperCase();
       if (/live|ongoing|in.?progress|playing/i.test(status)) st.live = true; else if (/completed/i.test(status)) st.live = false;
       const t = fmtTime((r[34]||"").trim()); if (t) st.time = t;
+      const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})/.exec((r[34]||"").trim());
+      if (m) st.at = `${m[3]}-${m[1].padStart(2,"0")}-${m[2].padStart(2,"0")}T${m[4].padStart(2,"0")}:${m[5]}`;
       n++;
     }
     save();
@@ -698,7 +740,7 @@ async function syncSheet(silent){
 
 /* ---------- Wiring ---------- */
 function toast(msg){ const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 1800); }
-const MODE = /control/i.test(location.hash) || /[?&]control/i.test(location.search) ? "control" : (/gameplay/i.test(location.hash + location.search) ? "gameplay" : (/waiting|brb|intermission/i.test(location.hash + location.search) ? "waiting" : "overlay"));
+const MODE = /control/i.test(location.hash) || /[?&]control/i.test(location.search) ? "control" : (/gameplay/i.test(location.hash + location.search) ? "gameplay" : (/waiting|brb|intermission/i.test(location.hash + location.search) ? "waiting" : (/caster/i.test(location.hash + location.search) ? "casters" : "overlay")));
 const PIN = (location.hash + location.search).match(/part=?([12])/i);
 let lastPart = null, syncTimer = null, rotTimer = null;
 // Overlay-side part choice: pinned by #part1/#part2, switched with keys 1/2 or double-click (OBS: right-click source → Interact),
@@ -855,6 +897,32 @@ function initGameplay(){
 }
 
 
+/* ---------- Countdown to a match start ---------- */
+const EVENT_DAYS = { Sat:"2026-11-07", Sun:"2026-11-08" };
+function matchStart(id){
+  const st = STATE.matches[id];
+  if (st.at) return new Date(st.at);
+  const m = /^(\w{3})\s+(\d{1,2}):(\d{2})/.exec(st.time || "");
+  return m && EVENT_DAYS[m[1]] ? new Date(`${EVENT_DAYS[m[1]]}T${m[2].padStart(2,"0")}:${m[3]}`) : null;
+}
+function countdownText(at){
+  if (!at) return "";
+  const ms = new Date(at) - Date.now();
+  if (ms <= 0) return "Starting soon";
+  const t = Math.floor(ms / 1000), h = Math.floor(t / 3600), mm = Math.floor(t % 3600 / 60), ss = t % 60;
+  return (h ? h + ":" + String(mm).padStart(2,"0") : String(mm).padStart(2,"0")) + ":" + String(ss).padStart(2,"0");
+}
+setInterval(() => document.querySelectorAll("[data-at]").forEach(el => {
+  const txt = countdownText(el.dataset.at);
+  el.textContent = txt; el.classList.toggle("soon", txt === "Starting soon");
+  if (el.parentElement) el.parentElement.classList.toggle("is-soon", txt === "Starting soon");
+}), 1000);
+function nextMatchId(){
+  const R = resolve(), ids = Object.keys(STRUCT);
+  const ready = id => !R[id].winner && realTeam(R[id].t1) && realTeam(R[id].t2);
+  return ids.filter(ready).sort((a, b) => (STATE.matches[b].live - STATE.matches[a].live) || (timeKey(STATE.matches[a].time) - timeKey(STATE.matches[b].time)) || (ids.indexOf(a) - ids.indexOf(b)))[0];
+}
+
 /* ---------- Waiting screen ---------- */
 const WS_DONE_KEY = "od_wildcard_ws_done_v1";
 const DAY = { Mon:1, Tue:2, Wed:3, Thu:4, Fri:5, Sat:6, Sun:7 };
@@ -882,7 +950,8 @@ function wsRender(){
     const st = STATE.matches[next], a = wsTeam(R[next].t1), b = wsTeam(R[next].t2);
     nextHTML = `<div class="lbl${st.live ? " on-air" : ""}">${st.live ? "Live now" : "Up next"}</div>
       <div class="line">${a.img}${a.name}<span class="vs">vs</span>${b.name}${b.img}</div>
-      <div class="sub">${esc(matchName(next))}${!st.live && st.time ? " · " + esc(st.time) + " CET" : ""}</div>`;
+      <div class="sub">${esc(matchName(next))}${!st.live && st.time ? " · " + esc(st.time) + " CET" : ""}</div>
+      ${!st.live && matchStart(next) ? `<div class="cdwrap${countdownText(matchStart(next)) === "Starting soon" ? " is-soon" : ""}"><span class="cdl">Starts in</span><span class="cd" data-at="${matchStart(next).toISOString()}">${countdownText(matchStart(next))}</span></div>` : ""}`;
   }
   const stage = document.getElementById("gpStage");
   if (!stage.querySelector(".ws2")) stage.innerHTML = `<div class="ws2 next"></div><div class="splash" id="splash"></div>`;
@@ -949,7 +1018,35 @@ function initWaiting(){
   wsRender(); wsCheck(); setInterval(wsCheck, 20000);
 }
 
+/* ---------- Casters view: next match + countdown, bottom-left ---------- */
+let csLast = "";
+function csRender(){
+  const R = resolve(), id = nextMatchId(), el = document.getElementById("gpStage");
+  let html = "";
+  if (id) {
+    const st = STATE.matches[id], r = R[id], at = matchStart(id);
+    const tm = n => { const t = TEAMS[n] || {}; return t.logo && LOGOS[t.logo] ? `<img src="${LOGOS[t.logo]}" alt="">` : ""; };
+    html = `<div class="cs"><div class="cs-top"><span class="cs-lbl${st.live ? " on-air" : ""}">${st.live ? "Live now" : "Up next"}</span><span class="cs-rd">${esc(matchName(id))}</span></div>
+      <div class="cs-teams">${tm(r.t1)}<b>${esc(r.t1)}</b><i>vs</i><b>${esc(r.t2)}</b>${tm(r.t2)}</div>
+      ${st.live ? "" : (at ? `<div class="cs-cd${countdownText(at) === "Starting soon" ? " is-soon" : ""}"><span>Starts in</span><b data-at="${at.toISOString()}">${countdownText(at)}</b></div>` : "")}</div>`;
+  }
+  if (html !== csLast) { el.innerHTML = html; csLast = html; const c = el.firstElementChild; if (c) c.classList.add("in"); }
+}
+async function csCheck(){
+  await syncSheet(true);
+  const failed = /Couldn't/.test(document.getElementById("syncStatus").textContent);
+  csRender();
+  document.getElementById("gpStatus").textContent = failed ? "Couldn't reach the sheet. Retrying in 20 s." : `Sheet checked at ${new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", second:"2-digit"})}`;
+}
+function initCasters(){
+  document.body.className = "waiting casters"; document.getElementById("gpWrap").hidden = false;
+  gpFit(); window.addEventListener("resize", gpFit);
+  gpCheckBtn.onclick = () => csCheck();
+  csRender(); csCheck(); setInterval(csCheck, 20000);
+}
+
 function init(){
+  if (MODE === "casters") { initCasters(); return; }
   if (MODE === "gameplay") { initGameplay(); return; }
   if (MODE === "waiting") { initWaiting(); return; }
   if (MODE === "control") {
